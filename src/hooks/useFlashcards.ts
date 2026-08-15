@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createCard, gradeCard, isDue } from "../lib/srs";
 import { shuffle } from "../lib/shuffle";
-import { pronunciationScore } from "../lib/similarity";
+import { bestAnswerScore } from "../lib/similarity";
 import type { SRSDeckState } from "../types";
 
 export interface FlashcardItem {
@@ -84,7 +84,7 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
 
   const result = useMemo(() => {
     if (!checked || !expectedAnswer) return null;
-    const score = pronunciationScore(expectedAnswer, userAnswer);
+    const score = bestAnswerScore(expectedAnswer, userAnswer);
     return { correct: score >= CORRECT_THRESHOLD, score };
   }, [checked, expectedAnswer, userAnswer]);
 

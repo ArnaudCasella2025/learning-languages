@@ -39,3 +39,28 @@ export function pronunciationScore(expected: string, heard: string): number {
   const maxLen = Math.max(a.length, b.length);
   return Math.round((1 - dist / maxLen) * 100);
 }
+
+/**
+ * Certaines traductions stockent plusieurs formulations acceptables,
+ * ex. "ils / elles", "temps (durée / météo)", "je t'en prie / de rien".
+ * Découpe ces variantes pour qu'une seule d'entre elles suffise à valider
+ * la réponse, plutôt que d'exiger le texte complet mot pour mot.
+ */
+export function answerCandidates(raw: string): string[] {
+  const stripEllipsis = (s: string) => s.replace(/(\.\.\.|…)\s*$/, "").trim();
+  const withoutParens = raw.replace(/\([^)]*\)/g, " ");
+  const parenContents = [...raw.matchAll(/\(([^)]*)\)/g)].map((m) => m[1]);
+
+  const candidates = [withoutParens, ...parenContents]
+    .flatMap((part) => part.split("/"))
+    .map((part) => stripEllipsis(part))
+    .filter(Boolean);
+
+  return candidates.length ? candidates : [stripEllipsis(raw)];
+}
+
+/** Meilleur score parmi toutes les formulations acceptables de `expected`. */
+export function bestAnswerScore(expected: string, given: string): number {
+  const candidates = answerCandidates(expected);
+  return Math.max(...candidates.map((c) => pronunciationScore(c, given)));
+}
