@@ -43,21 +43,29 @@ Les traductions à plusieurs formulations valables (« ils / elles »,
 « temps (durée / météo) »...) acceptent n'importe laquelle des variantes
 séparées par « / », y compris entre parenthèses.
 
-## Podcasts générés par IA
+## Podcasts
 
-En plus des podcasts externes curatés, l'appli peut générer elle-même un
-script de podcast (~2500 mots) via l'API Claude, lu par la synthèse
-vocale du navigateur (pas de fichier mp3 téléchargeable — voir
-« Reconnaissance vocale et synthèse vocale » plus bas) :
+En plus des podcasts externes curatés, l'appli propose des scripts lus
+par la synthèse vocale du navigateur (pas de fichier mp3 téléchargeable —
+voir « Reconnaissance vocale et synthèse vocale » plus bas), à trouver
+dans le module **Podcasts générés** de chaque niveau :
 
-- **Par palier de vocabulaire** : un podcast utilisant (quasi)
-  exclusivement les mots déjà appris (50, 100, 150 premiers mots...),
-  débloqué au fur et à mesure de ta progression.
-- **Sur un thème libre** : indique un sujet, l'appli génère un script au
-  niveau de la page où tu te trouves.
+- **Par palier de vocabulaire** : des épisodes écrits à l'avance
+  (`src/data/it/podcasts.ts`), pas générés à la demande, donc utilisables
+  **sans clé API**. Chacun utilise (quasi) exclusivement les mots déjà
+  introduits jusqu'à ce palier (50, 100, 150 premiers mots...) ; un
+  épisode se débloque avec un bouton « ▶ Écouter » dès que tu connais
+  assez de mots. La longueur augmente avec la taille du vocabulaire
+  disponible (un texte de ~2500 mots n'est pas réaliste avec seulement 50
+  mots appris sans tricher sur le vocabulaire) — objectif ~2500 mots par
+  épisode une fois le deck de vocabulaire bien étoffé.
+- **Sur un thème libre** : indique un sujet, un script est généré à la
+  volée via l'API Claude, au niveau de la page où tu te trouves. C'est la
+  seule partie de ce module qui nécessite une clé API — le reste
+  fonctionne sans.
 
-Les scripts générés sont mis en cache dans le navigateur (pas
-régénérés à chaque écoute).
+Les scripts générés sur un thème sont mis en cache dans le navigateur
+(pas régénérés à chaque écoute).
 
 ## Fonctionnalités IA et clé API
 
@@ -69,8 +77,9 @@ l'API Claude **depuis ton navigateur**, avec ta propre clé API :
 3. Elle est stockée uniquement dans le `localStorage` de ton navigateur,
    jamais commitée ni envoyée ailleurs qu'à `api.anthropic.com`.
 
-Les autres modules (vocabulaire, phrases, prononciation, écoute)
-fonctionnent sans clé API.
+Les autres modules (vocabulaire, phrases, prononciation, écoute, podcasts
+par palier de vocabulaire) fonctionnent sans clé API. Seule la génération
+d'un podcast sur un thème libre en a besoin.
 
 ⚠️ Une clé API exposée côté navigateur peut en théorie être lue par
 quelqu'un inspectant le trafic de ton propre appareil. C'est acceptable
@@ -98,9 +107,11 @@ w("parola", "traduction", "categorie", 1); // tier 1 ou 2
 
 Les ressources d'écoute (`src/data/it/listening.ts`) et les scénarios de
 conversation IA (`src/data/it/scenarios.ts`) se complètent de la même
-façon. Les paliers proposés pour les podcasts générés (`MILESTONES` dans
-`src/lib/podcastPrompt.ts`) s'ajustent automatiquement à la taille du
-deck de vocabulaire.
+façon. Pour ajouter un nouveau palier de podcast (par exemple 500 ou
+1000 mots une fois le deck de vocabulaire assez étoffé), ajoute un
+épisode dans `src/data/it/podcasts.ts` avec le `milestone` correspondant
+— il apparaîtra automatiquement dans la liste, verrouillé jusqu'à ce que
+le nombre de mots connus atteigne ce seuil.
 
 ## Ajouter une langue
 

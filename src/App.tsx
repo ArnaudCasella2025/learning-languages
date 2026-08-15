@@ -113,6 +113,7 @@ export default function App() {
             locale={language.ttsLocale}
             vocab={language.vocab}
             vocabDeck={vocabDeck}
+            milestoneEpisodes={language.milestonePodcasts}
             apiKey={apiKey}
             podcasts={podcasts}
             onPodcastsChange={setPodcasts}

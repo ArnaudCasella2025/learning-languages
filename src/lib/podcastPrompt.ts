@@ -1,4 +1,4 @@
-import type { Level, VocabItem } from "../types";
+import type { Level } from "../types";
 
 const LEVEL_DESC: Record<Level, string> = {
   1: "grand débutant (A1) : phrases très courtes et simples, présent uniquement",
@@ -7,33 +7,6 @@ const LEVEL_DESC: Record<Level, string> = {
 };
 
 const TARGET_WORDS = 2500;
-
-export const MILESTONES = [50, 100, 150, 200, 250, 500, 1000] as const;
-
-export function availableMilestones(totalVocab: number): number[] {
-  return MILESTONES.filter((m) => m <= totalVocab);
-}
-
-export function milestoneVocabPrompt(
-  languageLabel: string,
-  level: Level,
-  words: VocabItem[],
-  milestone: number,
-): { system: string; user: string } {
-  const wordList = words.map((w) => w.it).join(", ");
-  const system = `Tu es un rédacteur de contenu pédagogique pour l'apprentissage du ${languageLabel}, spécialisé dans les podcasts pour apprenants francophones. Tu réponds UNIQUEMENT avec le script du podcast, en ${languageLabel}, sans aucun commentaire, titre ou traduction.`;
-  const user = `Écris le script d'un podcast en ${languageLabel} d'environ ${TARGET_WORDS} mots, destiné à un apprenant francophone qui connaît les ${milestone} mots de ${languageLabel} les plus fréquents suivants :
-
-${wordList}
-
-Contraintes :
-- Utilise QUASI EXCLUSIVEMENT ces mots (tu peux ajouter quelques mots grammaticaux indispensables comme des articles ou des prépositions même absents de la liste, mais évite tout autre vocabulaire nouveau).
-- Niveau : ${LEVEL_DESC[level]}.
-- Structure naturelle de podcast : courte introduction, 2 à 3 sujets simples de la vie quotidienne, conclusion.
-- Phrases courtes, rythme clair, répétitions bienvenues pour ancrer le vocabulaire.
-- Réponds uniquement avec le texte du script, en ${languageLabel}, sans titre ni note.`;
-  return { system, user };
-}
 
 export function themePodcastPrompt(
   languageLabel: string,

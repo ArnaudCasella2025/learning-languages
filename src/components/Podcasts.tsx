@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { GeneratedPodcast, Level, SRSDeckState, VocabItem } from "../types";
 import { sendMessage, ClaudeApiError } from "../lib/claude";
-import { availableMilestones, milestoneVocabPrompt, themePodcastPrompt } from "../lib/podcastPrompt";
+import { themePodcastPrompt } from "../lib/podcastPrompt";
 import { useTtsReader } from "../hooks/useTtsReader";
+
+type MilestoneEpisode = Omit<GeneratedPodcast, "id" | "createdAt">;
 
 interface Props {
   level: Level;
@@ -10,6 +12,7 @@ interface Props {
   locale: string;
   vocab: VocabItem[];
   vocabDeck: SRSDeckState;
+  milestoneEpisodes: MilestoneEpisode[];
   apiKey: string;
   podcasts: GeneratedPodcast[];
   onPodcastsChange: (podcasts: GeneratedPodcast[]) => void;
@@ -19,6 +22,10 @@ interface Props {
 
 function knownCount(vocab: VocabItem[], deck: SRSDeckState): number {
   return vocab.filter((v) => deck[v.id]?.repetitions > 0).length;
+}
+
+function toPodcast(episode: MilestoneEpisode): GeneratedPodcast {
+  return { ...episode, id: `milestone-${episode.milestone}`, createdAt: "" };
 }
 
 function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string }) {
@@ -56,6 +63,7 @@ export function Podcasts({
   locale,
   vocab,
   vocabDeck,
+  milestoneEpisodes,
   apiKey,
   podcasts,
   onPodcastsChange,
@@ -68,34 +76,7 @@ export function Podcasts({
   const [selected, setSelected] = useState<GeneratedPodcast | null>(null);
 
   const known = knownCount(vocab, vocabDeck);
-  const milestones = availableMilestones(vocab.length);
-  const milestonePodcasts = podcasts.filter((p) => p.kind === "milestone");
   const themePodcasts = podcasts.filter((p) => p.kind === "theme" && p.level === level);
-
-  async function generateMilestone(m: number) {
-    setError(null);
-    setLoadingId(`m-${m}`);
-    try {
-      const words = vocab.slice(0, m);
-      const { system, user } = milestoneVocabPrompt(languageLabel, level, words, m);
-      const script = await sendMessage(apiKey, system, [{ role: "user", content: user }], 4096);
-      const podcast: GeneratedPodcast = {
-        id: crypto.randomUUID(),
-        title: `${m} premiers mots`,
-        level,
-        kind: "milestone",
-        milestone: m,
-        script,
-        createdAt: new Date().toISOString(),
-      };
-      onPodcastsChange([podcast, ...podcasts]);
-      setSelected(podcast);
-    } catch (e) {
-      setError(e instanceof ClaudeApiError ? e.message : "Erreur inattendue.");
-    } finally {
-      setLoadingId(null);
-    }
-  }
 
   async function generateTheme() {
     if (!theme.trim()) return;
@@ -123,23 +104,6 @@ export function Podcasts({
     }
   }
 
-  if (!apiKey) {
-    return (
-      <div className="module-screen">
-        <button className="back-link" onClick={onBack}>
-          ← Retour
-        </button>
-        <h2>Podcasts générés</h2>
-        <div className="empty-state">
-          <p>La génération de podcasts nécessite une clé API Anthropic.</p>
-          <button className="primary" onClick={onOpenSettings}>
-            Configurer ma clé API
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   if (selected) {
     return (
       <div className="module-screen">
@@ -159,33 +123,27 @@ export function Podcasts({
       </button>
       <h2>Podcasts générés</h2>
       <p className="module-sub">
-        Scripts générés par l'IA (~2500 mots), lus par la synthèse vocale du navigateur.
+        Écoute avec le bouton ▶, lu par la synthèse vocale du navigateur.
       </p>
-      {error && <p className="error-text">{error}</p>}
 
       <h3>Par palier de vocabulaire</h3>
-      <p className="hint">{known} mots connus pour l'instant.</p>
+      <p className="hint">
+        Épisodes écrits à l'avance, pas besoin de clé API. {known} mots connus pour l'instant.
+      </p>
       <div className="resource-list">
-        {milestones.map((m) => {
-          const existing = milestonePodcasts.find((p) => p.milestone === m);
-          const unlocked = known >= m;
+        {milestoneEpisodes.map((episode) => {
+          const unlocked = known >= (episode.milestone ?? 0);
           return (
-            <div key={m} className="resource-card milestone-card">
-              <strong>{m} premiers mots</strong>
-              {existing ? (
-                <button className="primary" onClick={() => setSelected(existing)}>
+            <div key={episode.milestone} className="resource-card milestone-card">
+              <strong>{episode.title}</strong>
+              {unlocked ? (
+                <button className="primary" onClick={() => setSelected(toPodcast(episode))}>
                   ▶ Écouter
                 </button>
-              ) : unlocked ? (
-                <button
-                  className="primary"
-                  disabled={loadingId === `m-${m}`}
-                  onClick={() => generateMilestone(m)}
-                >
-                  {loadingId === `m-${m}` ? "Génération…" : "Générer"}
-                </button>
               ) : (
-                <span className="hint">🔒 {m - known} mots restants à apprendre</span>
+                <span className="hint">
+                  🔒 {(episode.milestone ?? 0) - known} mots restants à apprendre
+                </span>
               )}
             </div>
           );
@@ -193,30 +151,42 @@ export function Podcasts({
       </div>
 
       <h3>Sur un thème</h3>
-      <div className="chat-input-row">
-        <input
-          type="text"
-          value={theme}
-          onChange={(e) => setTheme(e.target.value)}
-          placeholder="Ex : la cuisine, le sport, un voyage à Rome..."
-        />
-        <button
-          className="primary"
-          onClick={generateTheme}
-          disabled={loadingId === "theme" || !theme.trim()}
-        >
-          {loadingId === "theme" ? "Génération…" : "Générer"}
-        </button>
-      </div>
-
-      {themePodcasts.length > 0 && (
-        <div className="resource-list">
-          {themePodcasts.map((p) => (
-            <button key={p.id} className="scenario-card" onClick={() => setSelected(p)}>
-              <strong>{p.title}</strong>
-            </button>
-          ))}
+      {!apiKey ? (
+        <div className="empty-state">
+          <p>Générer un podcast sur un thème libre nécessite une clé API Anthropic.</p>
+          <button className="primary" onClick={onOpenSettings}>
+            Configurer ma clé API
+          </button>
         </div>
+      ) : (
+        <>
+          {error && <p className="error-text">{error}</p>}
+          <div className="chat-input-row">
+            <input
+              type="text"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+              placeholder="Ex : la cuisine, le sport, un voyage à Rome..."
+            />
+            <button
+              className="primary"
+              onClick={generateTheme}
+              disabled={loadingId === "theme" || !theme.trim()}
+            >
+              {loadingId === "theme" ? "Génération…" : "Générer"}
+            </button>
+          </div>
+
+          {themePodcasts.length > 0 && (
+            <div className="resource-list">
+              {themePodcasts.map((p) => (
+                <button key={p.id} className="scenario-card" onClick={() => setSelected(p)}>
+                  <strong>{p.title}</strong>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

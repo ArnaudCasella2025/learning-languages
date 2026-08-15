@@ -3,6 +3,7 @@ import { vocab as itVocab } from "./it/vocab";
 import { phrases as itPhrases } from "./it/phrases";
 import { listeningResources as itListening } from "./it/listening";
 import { scenarios as itScenarios, CORRECTION_SYSTEM_PROMPT as itCorrection } from "./it/scenarios";
+import { milestonePodcasts as itMilestonePodcasts } from "./it/podcasts";
 
 /**
  * Registre des langues disponibles dans l'appli. Pour ajouter une langue :
@@ -21,6 +22,7 @@ export const LANGUAGES: Record<string, LanguageConfig> = {
     listeningResources: itListening,
     scenarios: itScenarios,
     correctionSystemPrompt: itCorrection,
+    milestonePodcasts: itMilestonePodcasts,
   },
 };
 

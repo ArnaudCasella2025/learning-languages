@@ -22,6 +22,7 @@ export const vocab: VocabItem[] = [
   w("noi", "nous", "pronoms"),
   w("voi", "vous", "pronoms"),
   w("loro", "ils / elles", "pronoms"),
+  w("non", "ne... pas", "grammaire"),
 
   // Verbes essentiels
   w("essere", "être", "verbes"),

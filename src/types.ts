@@ -93,6 +93,7 @@ export interface LanguageConfig {
   listeningResources: ListeningResource[];
   scenarios: ConversationScenario[];
   correctionSystemPrompt: string;
+  milestonePodcasts: Omit<GeneratedPodcast, "id" | "createdAt">[];
 }
 
 export interface GeneratedPodcast {
