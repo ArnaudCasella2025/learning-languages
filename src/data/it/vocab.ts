@@ -77,7 +77,7 @@ export const vocab: VocabItem[] = [
   w("ricordare", "se souvenir", "verbes", 2),
   w("dimenticare", "oublier", "verbes", 2),
   w("credere", "croire", "verbes", 2),
-  w("piacere", "plaire", "verbes"),
+  w("piacere", "plaire / enchanté(e)", "verbes"),
 
   // Nombres
   w("zero", "zéro", "nombres"),
@@ -154,7 +154,7 @@ export const vocab: VocabItem[] = [
 
   // Mots interrogatifs
   w("chi", "qui", "questions"),
-  w("cosa", "quoi", "questions"),
+  w("cosa", "quoi / chose", "questions"),
   w("quando", "quand", "questions"),
   w("dove", "où", "questions"),
   w("perché", "pourquoi", "questions"),
@@ -175,7 +175,7 @@ export const vocab: VocabItem[] = [
   w("scusi", "excusez-moi", "salutations"),
   w("sì", "oui", "salutations"),
   w("no", "non", "salutations"),
-  w("piacere", "enchanté(e)", "salutations"),
+  w("piacere", "enchanté(e) / plaire", "salutations"),
   w("benvenuto", "bienvenue", "salutations", 2),
 
   // Famille
@@ -235,7 +235,7 @@ export const vocab: VocabItem[] = [
 
   // Noms courants
   w("tempo", "temps (durée / météo)", "quotidien"),
-  w("cosa", "chose", "quotidien"),
+  w("cosa", "chose / quoi", "quotidien"),
   w("persona", "personne", "quotidien", 2),
   w("uomo", "homme", "quotidien"),
   w("donna", "femme", "quotidien"),
@@ -245,7 +245,7 @@ export const vocab: VocabItem[] = [
   w("numero", "numéro", "quotidien"),
   w("prezzo", "prix", "quotidien", 2),
   w("soldi", "argent", "quotidien"),
-  w("lavoro", "travail", "quotidien"),
+  w("lavoro", "travail / je travaille", "quotidien"),
   w("macchina", "voiture", "quotidien"),
   w("treno", "train", "quotidien"),
   w("autobus", "bus", "quotidien"),
