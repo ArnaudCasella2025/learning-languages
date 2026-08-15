@@ -22,13 +22,16 @@ export function gradeCard(card: SRSCard, grade: number): SRSCard {
   );
 
   if (grade < 3) {
+    // "Encore" : la carte ne doit pas réapparaître immédiatement (elle
+    // serait toujours en tête de la file mélangée), mais un peu plus tard
+    // dans la session plutôt que le lendemain.
     return {
       ...card,
       easiness,
       repetitions: 0,
       interval: 0,
       lastGrade: grade,
-      dueDate: addDays(new Date(), 0).toISOString(),
+      dueDate: addMinutes(new Date(), 10).toISOString(),
     };
   }
 
@@ -51,6 +54,12 @@ export function gradeCard(card: SRSCard, grade: number): SRSCard {
 function addDays(date: Date, days: number): Date {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
+  return d;
+}
+
+function addMinutes(date: Date, minutes: number): Date {
+  const d = new Date(date);
+  d.setMinutes(d.getMinutes() + minutes);
   return d;
 }
 

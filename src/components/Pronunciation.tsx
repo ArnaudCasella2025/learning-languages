@@ -3,6 +3,7 @@ import { pronunciationScore } from "../lib/similarity";
 
 interface Props {
   items: { id: string; text: string; translation: string }[];
+  locale: string;
   onBack: () => void;
 }
 
@@ -28,7 +29,7 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
 const speechSupported = typeof window !== "undefined" && !!getSpeechRecognition();
 const ttsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
 
-export function Pronunciation({ items, onBack }: Props) {
+export function Pronunciation({ items, locale, onBack }: Props) {
   const [index, setIndex] = useState(0);
   const [listening, setListening] = useState(false);
   const [heard, setHeard] = useState<string | null>(null);
@@ -40,11 +41,11 @@ export function Pronunciation({ items, onBack }: Props) {
   const speak = useCallback(() => {
     if (!current || !ttsSupported) return;
     const utterance = new SpeechSynthesisUtterance(current.text);
-    utterance.lang = "it-IT";
+    utterance.lang = locale;
     utterance.rate = 0.9;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
-  }, [current]);
+  }, [current, locale]);
 
   const record = useCallback(() => {
     if (!current) return;
@@ -52,7 +53,7 @@ export function Pronunciation({ items, onBack }: Props) {
     if (!Recognition) return;
     const recognition = new Recognition();
     recognitionRef.current = recognition;
-    recognition.lang = "it-IT";
+    recognition.lang = locale;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     setHeard(null);
@@ -67,7 +68,7 @@ export function Pronunciation({ items, onBack }: Props) {
     recognition.onerror = () => setListening(false);
     recognition.onend = () => setListening(false);
     recognition.start();
-  }, [current]);
+  }, [current, locale]);
 
   const stopRecording = useCallback(() => {
     recognitionRef.current?.stop();

@@ -1,4 +1,4 @@
-import type { VocabItem } from "../types";
+import type { VocabItem } from "../../types";
 
 /**
  * Deck de vocabulaire italien courant, classé par catégorie.

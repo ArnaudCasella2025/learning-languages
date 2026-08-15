@@ -1,10 +1,12 @@
-# Lingo Levels — Italiano
+# Lingo Levels
 
-Appli web pour apprendre l'italien en suivant une méthode en 3 niveaux.
+Appli web pour apprendre une langue en suivant une méthode en 3 niveaux
+(aujourd'hui : italien, le sélecteur en haut de l'appli est prêt à
+accueillir d'autres langues — voir « Ajouter une langue » plus bas).
 Aucune installation : une page ouverte dans un navigateur suffit. Toutes
-les données (progression, journal, clé API) restent **dans le navigateur**
-(localStorage) — rien n'est envoyé à un serveur autre que l'API Claude
-quand tu utilises les fonctionnalités IA.
+les données (progression, journal, podcasts générés, clé API) restent
+**dans le navigateur** (localStorage) — rien n'est envoyé à un serveur
+autre que l'API Claude quand tu utilises les fonctionnalités IA.
 
 ## La méthode
 
@@ -12,18 +14,44 @@ quand tu utilises les fonctionnalités IA.
 - 1000 mots fréquents (flashcards à répétition espacée, algorithme SM-2)
 - Phrases de base de l'usage courant (flashcards)
 - Prononciation (écoute + reconnaissance vocale)
-- Écoute quotidienne (objectif 30 min/jour, podcasts débutants)
+- Écoute quotidienne (objectif 30 min/jour, podcasts débutants + podcasts générés par l'IA)
 
 **Niveau 2 — Conversation**
 - Suite du deck de mots et phrases
 - Parler avec l'IA (3 scénarios guidés, objectif 3x/semaine)
-- Contenus audio de niveau intermédiaire
+- Contenus audio de niveau intermédiaire + podcasts générés par l'IA
 - Journal quotidien de 5 phrases, corrigé par l'IA
 
 **Niveau 3 — Immersion**
-- Contenus audio 100% natifs
+- Contenus audio 100% natifs + podcasts générés par l'IA
 - Conversations longues et techniques avec l'IA (débat, entretien, libre)
 - Correction systématique (même module journal, sans filet)
+
+## Flashcards
+
+Les fiches de vocabulaire et de phrases sont mélangées (ordre aléatoire,
+figé pour la session), interrogent au hasard dans les deux sens
+(français → langue ou langue → français), et demandent de **taper la
+réponse** plutôt que de simplement retourner la carte : une correction
+s'affiche avant de noter la carte (Encore / Difficile / Facile), qui pilote
+la répétition espacée. Une carte notée « Encore » ne réapparaît pas
+immédiatement : elle revient un peu plus tard dans la session (10 min).
+
+## Podcasts générés par IA
+
+En plus des podcasts externes curatés, l'appli peut générer elle-même un
+script de podcast (~2500 mots) via l'API Claude, lu par la synthèse
+vocale du navigateur (pas de fichier mp3 téléchargeable — voir
+« Reconnaissance vocale et synthèse vocale » plus bas) :
+
+- **Par palier de vocabulaire** : un podcast utilisant (quasi)
+  exclusivement les mots déjà appris (50, 100, 150 premiers mots...),
+  débloqué au fur et à mesure de ta progression.
+- **Sur un thème libre** : indique un sujet, l'appli génère un script au
+  niveau de la page où tu te trouves.
+
+Les scripts générés sont mis en cache dans le navigateur (pas
+régénérés à chaque écoute).
 
 ## Fonctionnalités IA et clé API
 
@@ -52,9 +80,9 @@ reconnaissance vocale.
 
 ## Étendre le contenu
 
-Les decks de vocabulaire et de phrases (`src/data/vocab.ts`,
-`src/data/phrases.ts`) sont un socle de départ organisé par catégories et
-par palier (`tier: 1` = niveau survie, `tier: 2` = continuation), pas
+Les decks de vocabulaire et de phrases (`src/data/it/vocab.ts`,
+`src/data/it/phrases.ts`) sont un socle de départ organisé par catégories
+et par palier (`tier: 1` = niveau survie, `tier: 2` = continuation), pas
 encore une liste de fréquence de 1000 mots vérifiée. Pour l'enrichir,
 ajoute simplement des entrées dans ces fichiers avec la même forme :
 
@@ -62,8 +90,24 @@ ajoute simplement des entrées dans ces fichiers avec la même forme :
 w("parola", "traduction", "categorie", 1); // tier 1 ou 2
 ```
 
-Les ressources d'écoute (`src/data/listening.ts`) et les scénarios de
-conversation IA (`src/data/scenarios.ts`) se complètent de la même façon.
+Les ressources d'écoute (`src/data/it/listening.ts`) et les scénarios de
+conversation IA (`src/data/it/scenarios.ts`) se complètent de la même
+façon. Les paliers proposés pour les podcasts générés (`MILESTONES` dans
+`src/lib/podcastPrompt.ts`) s'ajustent automatiquement à la taille du
+deck de vocabulaire.
+
+## Ajouter une langue
+
+L'appli est structurée pour accueillir plusieurs langues :
+
+1. Crée un dossier `src/data/<code>/` (ex. `src/data/en/`) avec
+   `vocab.ts`, `phrases.ts`, `listening.ts` et `scenarios.ts`, sur le
+   modèle de `src/data/it/`.
+2. Ajoute une entrée dans le registre `src/data/languages.ts` (code,
+   libellé, drapeau, locale BCP 47 pour la voix — ex. `en-US`).
+
+Le sélecteur de langue dans l'en-tête de l'appli affichera automatiquement
+la nouvelle langue.
 
 ## Développement
 

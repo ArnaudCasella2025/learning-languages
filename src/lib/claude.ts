@@ -14,6 +14,7 @@ export async function sendMessage(
   apiKey: string,
   systemPrompt: string,
   messages: ChatMessage[],
+  maxTokens = 1024,
 ): Promise<string> {
   if (!apiKey) {
     throw new ClaudeApiError(
@@ -31,7 +32,7 @@ export async function sendMessage(
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 1024,
+      max_tokens: maxTokens,
       system: systemPrompt,
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
     }),

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import type { JournalEntry } from "../types";
 import { sendMessage, ClaudeApiError } from "../lib/claude";
-import { CORRECTION_SYSTEM_PROMPT } from "../data/scenarios";
 import { todayKey } from "../lib/storage";
 
 interface Props {
   apiKey: string;
+  languageLabel: string;
+  correctionSystemPrompt: string;
   entries: JournalEntry[];
   onEntriesChange: (entries: JournalEntry[]) => void;
   onBack: () => void;
@@ -23,7 +24,15 @@ function computeStreak(entries: JournalEntry[]): number {
   return streak;
 }
 
-export function Journal({ apiKey, entries, onEntriesChange, onBack, onOpenSettings }: Props) {
+export function Journal({
+  apiKey,
+  languageLabel,
+  correctionSystemPrompt,
+  entries,
+  onEntriesChange,
+  onBack,
+  onOpenSettings,
+}: Props) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,7 +45,7 @@ export function Journal({ apiKey, entries, onEntriesChange, onBack, onOpenSettin
     setLoading(true);
     setError(null);
     try {
-      const correction = await sendMessage(apiKey, CORRECTION_SYSTEM_PROMPT, [
+      const correction = await sendMessage(apiKey, correctionSystemPrompt, [
         { role: "user", content: text.trim() },
       ]);
       const entry: JournalEntry = {
@@ -79,7 +88,7 @@ export function Journal({ apiKey, entries, onEntriesChange, onBack, onOpenSettin
       </button>
       <h2>Journal quotidien</h2>
       <p className="module-sub">
-        Écris 5 phrases en italien sur ta journée · série actuelle : {streak} jour
+        Écris 5 phrases en {languageLabel.toLowerCase()} sur ta journée · série actuelle : {streak} jour
         {streak > 1 ? "s" : ""}
       </p>
 

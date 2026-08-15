@@ -1,10 +1,12 @@
 import type {
   ConversationLog,
+  GeneratedPodcast,
   JournalEntry,
   Level,
   ListeningLog,
   SRSDeckState,
 } from "../types";
+import { DEFAULT_LANGUAGE } from "../data/languages";
 
 const KEYS = {
   vocabDeck: "ll_vocab_deck_v1",
@@ -14,6 +16,8 @@ const KEYS = {
   journal: "ll_journal_v1",
   apiKey: "ll_anthropic_api_key_v1",
   currentLevel: "ll_current_level_v1",
+  language: "ll_language_v1",
+  podcasts: "ll_podcasts_v1",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -51,6 +55,12 @@ export const store = {
 
   getCurrentLevel: () => read<Level>(KEYS.currentLevel, 1),
   setCurrentLevel: (v: Level) => write(KEYS.currentLevel, v),
+
+  getLanguage: () => read<string>(KEYS.language, DEFAULT_LANGUAGE),
+  setLanguage: (v: string) => write(KEYS.language, v),
+
+  getPodcasts: () => read<GeneratedPodcast[]>(KEYS.podcasts, []),
+  setPodcasts: (v: GeneratedPodcast[]) => write(KEYS.podcasts, v),
 };
 
 export function todayKey(date: Date = new Date()): string {

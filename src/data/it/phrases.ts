@@ -1,4 +1,4 @@
-import type { PhraseItem } from "../types";
+import type { PhraseItem } from "../../types";
 
 function p(it: string, fr: string, tags: string[], tier: 1 | 2 = 1): PhraseItem {
   return { id: it, it, fr, tier, tags };

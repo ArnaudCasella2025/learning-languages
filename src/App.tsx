@@ -2,16 +2,14 @@ import { useState } from "react";
 import "./App.css";
 import type { Level, ModuleId } from "./types";
 import { store } from "./lib/storage";
-import { vocab } from "./data/vocab";
-import { phrases } from "./data/phrases";
-import { listeningResources } from "./data/listening";
-import { scenarios } from "./data/scenarios";
+import { LANGUAGES, DEFAULT_LANGUAGE } from "./data/languages";
 import { usePersisted } from "./hooks/usePersisted";
 import { Dashboard } from "./components/Dashboard";
 import { LevelPage } from "./components/LevelPage";
 import { Flashcards } from "./components/Flashcards";
 import { Pronunciation } from "./components/Pronunciation";
 import { Listening } from "./components/Listening";
+import { Podcasts } from "./components/Podcasts";
 import { Conversation } from "./components/Conversation";
 import { Journal } from "./components/Journal";
 import { Settings } from "./components/Settings";
@@ -21,6 +19,9 @@ type Tab = "dashboard" | Level | "settings";
 export default function App() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [activeModule, setActiveModule] = useState<ModuleId | null>(null);
+
+  const [languageCode, setLanguageCode] = usePersisted(store.getLanguage, store.setLanguage);
+  const language = LANGUAGES[languageCode] ?? LANGUAGES[DEFAULT_LANGUAGE];
 
   const [currentLevel, setCurrentLevel] = usePersisted<Level>(
     store.getCurrentLevel,
@@ -37,6 +38,7 @@ export default function App() {
     store.setConversationLog,
   );
   const [journal, setJournal] = usePersisted(store.getJournal, store.setJournal);
+  const [podcasts, setPodcasts] = usePersisted(store.getPodcasts, store.setPodcasts);
   const [apiKey, setApiKey] = usePersisted(store.getApiKey, store.setApiKey);
 
   function goLevel(level: Level) {
@@ -59,9 +61,9 @@ export default function App() {
         return (
           <Flashcards
             title="Vocabulaire"
-            items={vocab
+            items={language.vocab
               .filter((v) => v.tier <= tierCap)
-              .map((v) => ({ id: v.id, front: v.it, back: v.fr }))}
+              .map((v) => ({ id: v.id, it: v.it, fr: v.fr }))}
             deck={vocabDeck}
             onDeckChange={setVocabDeck}
             onBack={back}
@@ -71,9 +73,9 @@ export default function App() {
         return (
           <Flashcards
             title="Phrases"
-            items={phrases
+            items={language.phrases
               .filter((p) => p.tier <= tierCap)
-              .map((p) => ({ id: p.id, front: p.it, back: p.fr }))}
+              .map((p) => ({ id: p.id, it: p.it, fr: p.fr }))}
             deck={phraseDeck}
             onDeckChange={setPhraseDeck}
             onBack={back}
@@ -82,9 +84,10 @@ export default function App() {
       case "pronunciation":
         return (
           <Pronunciation
-            items={vocab
+            items={language.vocab
               .filter((v) => v.tier <= tierCap)
               .map((v) => ({ id: v.id, text: v.it, translation: v.fr }))}
+            locale={language.ttsLocale}
             onBack={back}
           />
         );
@@ -92,17 +95,32 @@ export default function App() {
         return (
           <Listening
             level={level}
-            resources={listeningResources}
+            resources={language.listeningResources}
             log={listeningLog}
             onLogChange={setListeningLog}
             onBack={back}
+          />
+        );
+      case "aiPodcasts":
+        return (
+          <Podcasts
+            level={level}
+            languageLabel={language.label}
+            locale={language.ttsLocale}
+            vocab={language.vocab}
+            vocabDeck={vocabDeck}
+            apiKey={apiKey}
+            podcasts={podcasts}
+            onPodcastsChange={setPodcasts}
+            onBack={back}
+            onOpenSettings={() => goTab("settings")}
           />
         );
       case "conversation":
         return (
           <Conversation
             level={level}
-            scenarios={scenarios}
+            scenarios={language.scenarios}
             apiKey={apiKey}
             log={conversationLog}
             onLogChange={setConversationLog}
@@ -114,6 +132,8 @@ export default function App() {
         return (
           <Journal
             apiKey={apiKey}
+            languageLabel={language.label}
+            correctionSystemPrompt={language.correctionSystemPrompt}
             entries={journal}
             onEntriesChange={setJournal}
             onBack={back}
@@ -128,7 +148,21 @@ export default function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>Lingo Levels — Italiano</h1>
+        <div className="app-header-top">
+          <h1>Lingo Levels</h1>
+          <select
+            className="language-select"
+            value={language.code}
+            onChange={(e) => setLanguageCode(e.target.value)}
+            aria-label="Langue apprise"
+          >
+            {Object.values(LANGUAGES).map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.flag} {lang.label}
+              </option>
+            ))}
+          </select>
+        </div>
         <nav className="tab-nav">
           <button className={tab === "dashboard" ? "active" : ""} onClick={() => goTab("dashboard")}>
             Tableau de bord
@@ -153,8 +187,8 @@ export default function App() {
           <Dashboard
             currentLevel={currentLevel}
             onLevelChange={goLevel}
-            vocab={vocab}
-            phrases={phrases}
+            vocab={language.vocab}
+            phrases={language.phrases}
             vocabDeck={vocabDeck}
             phraseDeck={phraseDeck}
             listeningLog={listeningLog}

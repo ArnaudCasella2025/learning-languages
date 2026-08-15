@@ -1,12 +1,16 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createCard, gradeCard, isDue } from "../lib/srs";
+import { shuffle } from "../lib/shuffle";
+import { pronunciationScore } from "../lib/similarity";
 import type { SRSDeckState } from "../types";
 
 export interface FlashcardItem {
   id: string;
-  front: string;
-  back: string;
+  it: string;
+  fr: string;
 }
+
+export type Direction = "it-fr" | "fr-it";
 
 interface Options {
   items: FlashcardItem[];
@@ -14,48 +18,97 @@ interface Options {
   onDeckChange: (deck: SRSDeckState) => void;
 }
 
+const CORRECT_THRESHOLD = 80;
+
+function idsKey(items: FlashcardItem[]): string {
+  return items.map((i) => i.id).join("|");
+}
+
 export function useFlashcards({ items, deck, onDeckChange }: Options) {
-  const [revealed, setRevealed] = useState(false);
-  const [sessionTick, setSessionTick] = useState(0);
+  const [userAnswer, setUserAnswer] = useState("");
+  const [checked, setChecked] = useState(false);
+
+  // Ordre mélangé, figé pour la session : ne change que si le jeu de
+  // cartes lui-même change (changement de niveau/deck), jamais à cause
+  // d'un simple re-rendu (sinon la carte affichée "saute" en boucle).
+  const [order, setOrder] = useState<string[]>(() => shuffle(items.map((i) => i.id)));
+  const orderKeyRef = useRef(idsKey(items));
+
+  useEffect(() => {
+    const key = idsKey(items);
+    if (key !== orderKeyRef.current) {
+      orderKeyRef.current = key;
+      setOrder(shuffle(items.map((i) => i.id)));
+    }
+  }, [items]);
 
   const queue = useMemo(() => {
     const now = new Date();
-    return items
-      .map((item) => deck[item.id] ?? createCard(item.id))
-      .filter((card) => isDue(card, now))
-      .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
-    // sessionTick forces recompute after grading without changing deps shape
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, deck, sessionTick]);
+    return order
+      .map((id) => items.find((i) => i.id === id))
+      .filter((item): item is FlashcardItem => Boolean(item))
+      .filter((item) => {
+        // Une carte jamais vue (absente du deck) n'a pas encore de date
+        // d'échéance : elle est due par définition, pas de comparaison à
+        // faire (créer une SRSCard ici pour la comparer à `now` serait
+        // sujet à une course avec l'horodatage interne de createCard).
+        const card = deck[item.id];
+        return !card || isDue(card, now);
+      });
+  }, [order, items, deck]);
 
-  const currentCard = queue[0] ?? null;
-  const currentItem = currentCard
-    ? items.find((i) => i.id === currentCard.id) ?? null
-    : null;
+  const currentItem = queue[0] ?? null;
+  const currentCard = currentItem ? (deck[currentItem.id] ?? createCard(currentItem.id)) : null;
+
+  const direction = useMemo<Direction>(
+    () => (Math.random() < 0.5 ? "it-fr" : "fr-it"),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [currentItem?.id],
+  );
+
+  const prompt = currentItem ? (direction === "it-fr" ? currentItem.it : currentItem.fr) : "";
+  const expectedAnswer = currentItem
+    ? direction === "it-fr"
+      ? currentItem.fr
+      : currentItem.it
+    : "";
 
   const knownCount = items.filter((item) => {
     const card = deck[item.id];
     return card && card.repetitions > 0;
   }).length;
 
-  const reveal = useCallback(() => setRevealed(true), []);
+  const checkAnswer = useCallback(() => {
+    setChecked(true);
+  }, []);
+
+  const result = useMemo(() => {
+    if (!checked || !expectedAnswer) return null;
+    const score = pronunciationScore(expectedAnswer, userAnswer);
+    return { correct: score >= CORRECT_THRESHOLD, score };
+  }, [checked, expectedAnswer, userAnswer]);
 
   const grade = useCallback(
     (value: number) => {
-      if (!currentCard) return;
-      const base = deck[currentCard.id] ?? createCard(currentCard.id);
-      const updated = gradeCard(base, value);
+      if (!currentItem || !currentCard) return;
+      const updated = gradeCard(currentCard, value);
       onDeckChange({ ...deck, [updated.id]: updated });
-      setRevealed(false);
-      setSessionTick((t) => t + 1);
+      setUserAnswer("");
+      setChecked(false);
     },
-    [currentCard, deck, onDeckChange],
+    [currentItem, currentCard, deck, onDeckChange],
   );
 
   return {
     currentItem,
-    revealed,
-    reveal,
+    direction,
+    prompt,
+    expectedAnswer,
+    userAnswer,
+    setUserAnswer,
+    checked,
+    result,
+    checkAnswer,
     grade,
     dueCount: queue.length,
     totalCount: items.length,

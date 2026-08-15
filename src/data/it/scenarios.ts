@@ -1,4 +1,4 @@
-import type { ConversationScenario } from "../types";
+import type { ConversationScenario } from "../../types";
 
 const BASE_RULES = `Tu es un partenaire de conversation en italien pour un apprenant francophone.
 Règles strictes :

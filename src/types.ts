@@ -5,6 +5,7 @@ export type ModuleId =
   | "phrases"
   | "pronunciation"
   | "listening"
+  | "aiPodcasts"
   | "conversation"
   | "journal";
 
@@ -80,3 +81,28 @@ export interface ConversationLog {
   /** horodatages ISO de chaque session de conversation terminée */
   sessions: string[];
 }
+
+export interface LanguageConfig {
+  code: string;
+  label: string;
+  flag: string;
+  /** locale BCP 47 pour la synthèse vocale et la reconnaissance vocale, ex. "it-IT" */
+  ttsLocale: string;
+  vocab: VocabItem[];
+  phrases: PhraseItem[];
+  listeningResources: ListeningResource[];
+  scenarios: ConversationScenario[];
+  correctionSystemPrompt: string;
+}
+
+export interface GeneratedPodcast {
+  id: string;
+  title: string;
+  level: Level;
+  kind: "milestone" | "theme";
+  milestone?: number;
+  theme?: string;
+  script: string;
+  createdAt: string;
+}
+

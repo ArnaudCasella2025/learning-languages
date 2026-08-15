@@ -1,4 +1,4 @@
-import type { ListeningResource } from "../types";
+import type { ListeningResource } from "../../types";
 
 export const listeningResources: ListeningResource[] = [
   // Niveau 1 — survie : podcasts pour débutants, débit ralenti
