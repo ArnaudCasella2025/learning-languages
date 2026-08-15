@@ -82,6 +82,11 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
     setChecked(true);
   }, []);
 
+  const giveUp = useCallback(() => {
+    setUserAnswer("");
+    setChecked(true);
+  }, []);
+
   const result = useMemo(() => {
     if (!checked || !expectedAnswer) return null;
     const score = bestAnswerScore(expectedAnswer, userAnswer);
@@ -109,6 +114,7 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
     checked,
     result,
     checkAnswer,
+    giveUp,
     grade,
     dueCount: queue.length,
     totalCount: items.length,

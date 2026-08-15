@@ -20,6 +20,7 @@ export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) 
     checked,
     result,
     checkAnswer,
+    giveUp,
     grade,
     dueCount,
     totalCount,
@@ -51,7 +52,7 @@ export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) 
           <div className="flashcard-front">{prompt}</div>
 
           <form
-            className="flashcard-answer-row"
+            className="flashcard-answer-form"
             onSubmit={(e) => {
               e.preventDefault();
               if (!checked) checkAnswer();
@@ -66,9 +67,14 @@ export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) 
               autoFocus
             />
             {!checked && (
-              <button type="submit" className="primary">
-                Vérifier
-              </button>
+              <div className="flashcard-answer-buttons">
+                <button type="submit" className="primary">
+                  Vérifier
+                </button>
+                <button type="button" className="ghost" onClick={giveUp}>
+                  Je ne sais pas
+                </button>
+              </div>
             )}
           </form>
 
@@ -83,19 +89,25 @@ export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) 
         </div>
       )}
 
-      {currentItem && checked && (
-        <div className="grade-buttons">
-          <button className="grade-again" onClick={() => grade(1)}>
-            Encore
-          </button>
-          <button className="grade-hard" onClick={() => grade(3)}>
-            Difficile
-          </button>
-          <button className="grade-easy" onClick={() => grade(5)}>
-            Facile
-          </button>
-        </div>
-      )}
+      {currentItem &&
+        checked &&
+        result &&
+        (result.correct ? (
+          <div className="grade-buttons">
+            <button className="grade-hard" onClick={() => grade(3)}>
+              Difficile
+            </button>
+            <button className="grade-easy" onClick={() => grade(5)}>
+              Facile
+            </button>
+          </div>
+        ) : (
+          <div className="grade-buttons">
+            <button className="grade-again" onClick={() => grade(1)}>
+              Continuer →
+            </button>
+          </div>
+        ))}
     </div>
   );
 }

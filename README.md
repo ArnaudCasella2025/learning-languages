@@ -32,10 +32,16 @@ autre que l'API Claude quand tu utilises les fonctionnalités IA.
 Les fiches de vocabulaire et de phrases sont mélangées (ordre aléatoire,
 figé pour la session), interrogent au hasard dans les deux sens
 (français → langue ou langue → français), et demandent de **taper la
-réponse** plutôt que de simplement retourner la carte : une correction
-s'affiche avant de noter la carte (Encore / Difficile / Facile), qui pilote
-la répétition espacée. Une carte notée « Encore » ne réapparaît pas
+réponse** plutôt que de simplement retourner la carte (un bouton
+« Je ne sais pas » permet de passer directement à la correction). Une
+réponse fausse est automatiquement notée « Encore » (pas besoin de choisir),
+une réponse juste laisse choisir Difficile/Facile pour affiner l'intervalle
+de répétition espacée. Une carte notée « Encore » ne réapparaît pas
 immédiatement : elle revient un peu plus tard dans la session (10 min).
+
+Les traductions à plusieurs formulations valables (« ils / elles »,
+« temps (durée / météo) »...) acceptent n'importe laquelle des variantes
+séparées par « / », y compris entre parenthèses.
 
 ## Podcasts générés par IA
 
