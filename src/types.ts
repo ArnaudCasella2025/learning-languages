@@ -107,3 +107,19 @@ export interface GeneratedPodcast {
   createdAt: string;
 }
 
+/**
+ * Sous-ensemble de la progression qui peut être synchronisé entre
+ * appareils (voir lib/sync.ts). La clé API reste volontairement en
+ * dehors : elle ne doit jamais transiter par Firestore.
+ */
+export interface SyncableProgress {
+  vocabDeck: SRSDeckState;
+  phraseDeck: SRSDeckState;
+  listeningLog: ListeningLog;
+  conversationLog: ConversationLog;
+  journal: JournalEntry[];
+  podcasts: GeneratedPodcast[];
+  currentLevel: Level;
+  language: string;
+}
+

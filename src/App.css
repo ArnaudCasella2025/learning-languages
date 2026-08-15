@@ -598,3 +598,29 @@ input[type="text"] {
   color: var(--text-h);
   width: 100%;
 }
+
+.sync-code-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sync-code {
+  font-family: var(--mono, ui-monospace, monospace);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-h);
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.sync-code-row button {
+  border: 1px solid var(--border);
+  background: var(--bg-alt);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 14px;
+}

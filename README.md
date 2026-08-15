@@ -5,8 +5,10 @@ Appli web pour apprendre une langue en suivant une méthode en 3 niveaux
 accueillir d'autres langues — voir « Ajouter une langue » plus bas).
 Aucune installation : une page ouverte dans un navigateur suffit. Toutes
 les données (progression, journal, podcasts générés, clé API) restent
-**dans le navigateur** (localStorage) — rien n'est envoyé à un serveur
-autre que l'API Claude quand tu utilises les fonctionnalités IA.
+**dans le navigateur** (localStorage) par défaut — rien n'est envoyé à un
+serveur autre que l'API Claude quand tu utilises les fonctionnalités IA.
+Une synchronisation optionnelle entre appareils (Firebase) peut être
+activée — voir « Synchronisation multi-appareils » plus bas.
 
 ## La méthode
 
@@ -110,6 +112,68 @@ dans ce cas. Pour installer une voix italienne :
 
 Après l'installation, recharge la page de l'appli.
 
+## Synchronisation multi-appareils (Firebase)
+
+Par défaut, la progression (vocabulaire, phrases, journal, podcasts
+écoutés, niveau, langue) est locale à un seul navigateur/appareil. Pour la
+retrouver sur plusieurs appareils, l'appli peut se synchroniser via
+Firestore, avec un modèle volontairement simple — pas de compte, pas de
+mot de passe :
+
+1. Dans l'onglet **Réglages**, clique sur **Générer un code de
+   synchronisation** sur un premier appareil.
+2. Sur un autre appareil, va dans ses Réglages et colle ce code dans
+   **Lier un code existant**. Sa progression locale est alors remplacée
+   par celle associée au code, et les deux appareils restent synchronisés
+   en temps réel ensuite (chaque changement sur l'un se répercute sur
+   l'autre en quelques secondes).
+
+Le code fait office de secret : n'importe qui le connaissant peut lire et
+modifier la progression associée. Garde-le pour toi, comme un mot de
+passe.
+
+⚠️ **La clé API Anthropic n'est jamais synchronisée**, volontairement —
+elle reste dans le localStorage de chaque appareil et doit être renseignée
+séparément sur chacun. C'est un choix de sécurité délibéré : contrairement
+à une progression d'apprentissage, une clé API a une valeur financière
+réelle (facturation à l'usage), donc pas question de la faire transiter
+par un document Firestore aux règles ouvertes (voir plus bas).
+
+### Mettre en place le projet Firebase (une fois)
+
+1. Crée un projet sur [console.firebase.google.com](https://console.firebase.google.com)
+   (gratuit à ce niveau d'usage).
+2. Active **Firestore Database** (mode production ou test, peu importe —
+   les règles ci-dessous s'appliquent dans les deux cas).
+3. Dans **Règles** de Firestore, colle :
+   ```
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /syncs/{code} {
+         allow read, write: if true;
+       }
+     }
+   }
+   ```
+   ⚠️ Ces règles sont volontairement ouvertes : quiconque connaît un code
+   de synchronisation (chaîne aléatoire de 8 caractères, ~1 chance sur
+   32^8) peut lire/écrire le document associé. C'est le même modèle de
+   sécurité qu'un lien secret non listé — suffisant pour un usage
+   personnel, mais à garder en tête.
+4. Ajoute une application web au projet (icône `</>`) pour obtenir les
+   valeurs de config (`apiKey`, `authDomain`, `projectId`,
+   `storageBucket`, `messagingSenderId`, `appId`).
+5. Renseigne ces valeurs comme **secrets du dépôt GitHub**
+   (`Settings → Secrets and variables → Actions → New repository secret`),
+   un secret par variable listée dans `.env.example`
+   (`VITE_FIREBASE_API_KEY`, etc.) — le workflow de déploiement les
+   injecte au moment du build.
+
+Sans cette configuration, l'onglet Réglages indique simplement que la
+synchronisation n'est pas disponible, et le reste de l'appli fonctionne
+normalement en local.
+
 ## Étendre le contenu
 
 Les decks de vocabulaire et de phrases (`src/data/it/vocab.ts`,
@@ -146,6 +210,7 @@ la nouvelle langue.
 ## Développement
 
 ```bash
+cp .env.example .env.local   # optionnel : renseigner les valeurs Firebase (voir ci-dessus)
 npm install
 npm run dev      # serveur de développement
 npm run build    # build de production dans dist/

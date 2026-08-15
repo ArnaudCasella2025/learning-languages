@@ -4,6 +4,7 @@ import type { Level, ModuleId } from "./types";
 import { store } from "./lib/storage";
 import { LANGUAGES, DEFAULT_LANGUAGE } from "./data/languages";
 import { usePersisted } from "./hooks/usePersisted";
+import { useSyncedProgress } from "./hooks/useSyncedProgress";
 import { Dashboard } from "./components/Dashboard";
 import { LevelPage } from "./components/LevelPage";
 import { Flashcards } from "./components/Flashcards";
@@ -20,25 +21,31 @@ export default function App() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [activeModule, setActiveModule] = useState<ModuleId | null>(null);
 
-  const [languageCode, setLanguageCode] = usePersisted(store.getLanguage, store.setLanguage);
+  const [syncCode, setSyncCode] = usePersisted(store.getSyncCode, store.setSyncCode);
+  const progress = useSyncedProgress(syncCode);
+  const {
+    vocabDeck,
+    setVocabDeck,
+    phraseDeck,
+    setPhraseDeck,
+    listeningLog,
+    setListeningLog,
+    conversationLog,
+    setConversationLog,
+    journal,
+    setJournal,
+    podcasts,
+    setPodcasts,
+    currentLevel,
+    setCurrentLevel,
+    language: languageCode,
+    setLanguage: setLanguageCode,
+  } = progress;
+
   const language = LANGUAGES[languageCode] ?? LANGUAGES[DEFAULT_LANGUAGE];
 
-  const [currentLevel, setCurrentLevel] = usePersisted<Level>(
-    store.getCurrentLevel,
-    store.setCurrentLevel,
-  );
-  const [vocabDeck, setVocabDeck] = usePersisted(store.getVocabDeck, store.setVocabDeck);
-  const [phraseDeck, setPhraseDeck] = usePersisted(store.getPhraseDeck, store.setPhraseDeck);
-  const [listeningLog, setListeningLog] = usePersisted(
-    store.getListeningLog,
-    store.setListeningLog,
-  );
-  const [conversationLog, setConversationLog] = usePersisted(
-    store.getConversationLog,
-    store.setConversationLog,
-  );
-  const [journal, setJournal] = usePersisted(store.getJournal, store.setJournal);
-  const [podcasts, setPodcasts] = usePersisted(store.getPodcasts, store.setPodcasts);
+  // La clé API reste strictement locale : jamais incluse dans la
+  // progression synchronisée (voir README, section sécurité).
   const [apiKey, setApiKey] = usePersisted(store.getApiKey, store.setApiKey);
 
   function goLevel(level: Level) {
@@ -202,7 +209,13 @@ export default function App() {
           />
         )}
         {tab === "settings" && (
-          <Settings apiKey={apiKey} onApiKeyChange={setApiKey} onBack={() => goTab("dashboard")} />
+          <Settings
+            apiKey={apiKey}
+            onApiKeyChange={setApiKey}
+            syncCode={syncCode}
+            onSyncCodeChange={setSyncCode}
+            onBack={() => goTab("dashboard")}
+          />
         )}
         {(tab === 1 || tab === 2 || tab === 3) && renderModule(tab)}
       </main>

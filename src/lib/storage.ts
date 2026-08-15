@@ -18,6 +18,7 @@ const KEYS = {
   currentLevel: "ll_current_level_v1",
   language: "ll_language_v1",
   podcasts: "ll_podcasts_v1",
+  syncCode: "ll_sync_code_v1",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -61,6 +62,14 @@ export const store = {
 
   getPodcasts: () => read<GeneratedPodcast[]>(KEYS.podcasts, []),
   setPodcasts: (v: GeneratedPodcast[]) => write(KEYS.podcasts, v),
+
+  /**
+   * Code de synchronisation multi-appareils. Reste strictement local
+   * (jamais envoyé où que ce soit) : c'est l'identifiant du document
+   * Firestore, pas une donnée synchronisée elle-même.
+   */
+  getSyncCode: () => read<string>(KEYS.syncCode, ""),
+  setSyncCode: (v: string) => write(KEYS.syncCode, v),
 };
 
 export function todayKey(date: Date = new Date()): string {
