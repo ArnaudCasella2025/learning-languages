@@ -88,10 +88,27 @@ ne partage jamais cette clé et ne l'utilise pas sur un appareil partagé.
 
 ### Reconnaissance vocale et synthèse vocale
 
-Le module de prononciation utilise la Web Speech API du navigateur
-(`SpeechRecognition` / `speechSynthesis`). Le support est meilleur sous
-Chrome/Edge ; Firefox et Safari ne supportent pas toujours la
-reconnaissance vocale.
+Le module de prononciation et les podcasts utilisent la Web Speech API du
+navigateur (`SpeechRecognition` / `speechSynthesis`). Le support est
+meilleur sous Chrome/Edge ; Firefox et Safari ne supportent pas toujours
+la reconnaissance vocale.
+
+La synthèse vocale utilise les **voix installées sur ton système
+d'exploitation**, pas une voix fournie par l'appli. Si aucune voix
+italienne n'est installée, le navigateur lit le texte avec sa voix par
+défaut (souvent une voix française) — l'appli affiche un avertissement
+dans ce cas. Pour installer une voix italienne :
+
+- **Windows** : Paramètres → Heure et langue → Voix → Ajouter des voix →
+  Italien.
+- **macOS** : Réglages Système → Accessibilité → Contenu énoncé → Voix du
+  système → Gérer les voix → coche une voix italienne.
+- **Android** : Paramètres → Système → Langues → Synthèse vocale →
+  moteur préféré → installer les données vocales italiennes.
+- **iOS** : Réglages → Accessibilité → Contenu énoncé → Voix → Italien →
+  télécharger une voix.
+
+Après l'installation, recharge la page de l'appli.
 
 ## Étendre le contenu
 

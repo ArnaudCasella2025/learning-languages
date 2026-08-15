@@ -29,10 +29,8 @@ function toPodcast(episode: MilestoneEpisode): GeneratedPodcast {
 }
 
 function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string }) {
-  const { playing, progressPct, play, pause, stop, supported } = useTtsReader(
-    podcast.script,
-    locale,
-  );
+  const { playing, progressPct, play, pause, stop, supported, voiceAvailable, voiceChecked } =
+    useTtsReader(podcast.script, locale);
 
   if (!supported) {
     return <p className="hint">Synthèse vocale non disponible dans ce navigateur.</p>;
@@ -40,6 +38,14 @@ function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string
 
   return (
     <div className="podcast-player">
+      {voiceChecked && !voiceAvailable && (
+        <p className="hint">
+          ⚠️ Aucune voix {locale} trouvée sur cet appareil : la lecture utilisera la voix par
+          défaut du navigateur (probablement française), pas une vraie voix italienne. Installe
+          une voix italienne dans les réglages de synthèse vocale de ton système ou navigateur
+          (voir le README) pour une meilleure prononciation.
+        </p>
+      )}
       <div className="progress-bar">
         <div className="progress-fill" style={{ width: `${progressPct}%` }} />
       </div>

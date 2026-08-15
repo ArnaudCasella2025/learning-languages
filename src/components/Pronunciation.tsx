@@ -1,5 +1,6 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { pronunciationScore } from "../lib/similarity";
+import { findVoice } from "../lib/voices";
 
 interface Props {
   items: { id: string; text: string; translation: string }[];
@@ -36,16 +37,32 @@ export function Pronunciation({ items, locale, onBack }: Props) {
   const [score, setScore] = useState<number | null>(null);
   const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
 
+  const [voice, setVoice] = useState<SpeechSynthesisVoice | undefined>();
+  const [voiceChecked, setVoiceChecked] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    findVoice(locale).then((v) => {
+      if (!cancelled) {
+        setVoice(v);
+        setVoiceChecked(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
   const current = items[index] ?? null;
 
   const speak = useCallback(() => {
     if (!current || !ttsSupported) return;
     const utterance = new SpeechSynthesisUtterance(current.text);
     utterance.lang = locale;
+    if (voice) utterance.voice = voice;
     utterance.rate = 0.9;
     window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
-  }, [current, locale]);
+  }, [current, locale, voice]);
 
   const record = useCallback(() => {
     if (!current) return;
@@ -107,6 +124,14 @@ export function Pronunciation({ items, locale, onBack }: Props) {
       <p className="module-sub">
         {index + 1}/{items.length}
       </p>
+
+      {voiceChecked && !voice && (
+        <p className="hint">
+          ⚠️ Aucune voix {locale} trouvée sur cet appareil : le bouton Écouter utilisera la voix
+          par défaut du navigateur. Installe une voix italienne dans les réglages de synthèse
+          vocale de ton système (voir le README).
+        </p>
+      )}
 
       <div className="pronunciation-card">
         <div className="pronunciation-text">{current.text}</div>

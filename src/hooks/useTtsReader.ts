@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { splitIntoChunks } from "../lib/ttsReader";
+import { findVoice } from "../lib/voices";
 
 const supported = typeof window !== "undefined" && "speechSynthesis" in window;
 
@@ -9,6 +10,22 @@ export function useTtsReader(text: string, locale: string) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const stoppedRef = useRef(false);
+
+  const [voice, setVoice] = useState<SpeechSynthesisVoice | undefined>();
+  const [voiceChecked, setVoiceChecked] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setVoiceChecked(false);
+    findVoice(locale).then((v) => {
+      if (!cancelled) {
+        setVoice(v);
+        setVoiceChecked(true);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
 
   const speakFrom = useCallback(
     (start: number) => {
@@ -27,6 +44,7 @@ export function useTtsReader(text: string, locale: string) {
         }
         const utterance = new SpeechSynthesisUtterance(chunks[i]);
         utterance.lang = locale;
+        if (voice) utterance.voice = voice;
         utterance.rate = 0.95;
         utterance.onend = () => {
           if (stoppedRef.current) return;
@@ -39,7 +57,7 @@ export function useTtsReader(text: string, locale: string) {
       };
       speakNext(start);
     },
-    [chunks, locale],
+    [chunks, locale, voice],
   );
 
   const play = useCallback(() => {
@@ -71,5 +89,15 @@ export function useTtsReader(text: string, locale: string) {
 
   const progressPct = chunks.length ? Math.round((index / chunks.length) * 100) : 0;
 
-  return { playing, progressPct, play, pause, stop, supported, totalChunks: chunks.length };
+  return {
+    playing,
+    progressPct,
+    play,
+    pause,
+    stop,
+    supported,
+    totalChunks: chunks.length,
+    voiceAvailable: voice !== undefined,
+    voiceChecked,
+  };
 }
