@@ -239,11 +239,22 @@ button.recording {
   font-size: 26px;
   font-weight: 600;
   color: var(--text-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .flashcard-back {
   font-size: 18px;
   color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.flashcard-flag {
+  font-size: 0.75em;
 }
 
 .flashcard-answer-form {

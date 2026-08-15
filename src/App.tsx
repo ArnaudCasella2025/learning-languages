@@ -61,6 +61,8 @@ export default function App() {
         return (
           <Flashcards
             title="Vocabulaire"
+            languageLabel={language.label}
+            languageFlag={language.flag}
             items={language.vocab
               .filter((v) => v.tier <= tierCap)
               .map((v) => ({ id: v.id, it: v.it, fr: v.fr }))}
@@ -73,6 +75,8 @@ export default function App() {
         return (
           <Flashcards
             title="Phrases"
+            languageLabel={language.label}
+            languageFlag={language.flag}
             items={language.phrases
               .filter((p) => p.tier <= tierCap)
               .map((p) => ({ id: p.id, it: p.it, fr: p.fr }))}

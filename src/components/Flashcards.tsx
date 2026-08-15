@@ -1,15 +1,27 @@
 import type { SRSDeckState } from "../types";
 import { useFlashcards, type FlashcardItem } from "../hooks/useFlashcards";
 
+const FRENCH_FLAG = "🇫🇷";
+
 interface Props {
   title: string;
+  languageLabel: string;
+  languageFlag: string;
   items: FlashcardItem[];
   deck: SRSDeckState;
   onDeckChange: (deck: SRSDeckState) => void;
   onBack: () => void;
 }
 
-export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) {
+export function Flashcards({
+  title,
+  languageLabel,
+  languageFlag,
+  items,
+  deck,
+  onDeckChange,
+  onBack,
+}: Props) {
   const {
     currentItem,
     direction,
@@ -26,6 +38,9 @@ export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) 
     totalCount,
     knownCount,
   } = useFlashcards({ items, deck, onDeckChange });
+
+  const promptFlag = direction === "it-fr" ? languageFlag : FRENCH_FLAG;
+  const answerFlag = direction === "it-fr" ? FRENCH_FLAG : languageFlag;
 
   return (
     <div className="module-screen">
@@ -47,9 +62,16 @@ export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) 
       {currentItem && (
         <div className="flashcard">
           <div className="flashcard-direction">
-            {direction === "it-fr" ? "italien → français" : "français → italien"}
+            {direction === "it-fr"
+              ? `${languageLabel.toLowerCase()} → français`
+              : `français → ${languageLabel.toLowerCase()}`}
           </div>
-          <div className="flashcard-front">{prompt}</div>
+          <div className="flashcard-front">
+            <span className="flashcard-flag" aria-hidden="true">
+              {promptFlag}
+            </span>
+            {prompt}
+          </div>
 
           <form
             className="flashcard-answer-form"
@@ -83,7 +105,12 @@ export function Flashcards({ title, items, deck, onDeckChange, onBack }: Props) 
               <p className={result.correct ? "score-great" : "score-low"}>
                 {result.correct ? "✅ Correct !" : "❌ Pas tout à fait."}
               </p>
-              <p className="flashcard-back">Réponse : {expectedAnswer}</p>
+              <p className="flashcard-back">
+                <span className="flashcard-flag" aria-hidden="true">
+                  {answerFlag}
+                </span>
+                Réponse : {expectedAnswer}
+              </p>
             </div>
           )}
         </div>
