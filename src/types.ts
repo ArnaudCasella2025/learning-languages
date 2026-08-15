@@ -1,0 +1,82 @@
+export type Level = 1 | 2 | 3;
+
+export type ModuleId =
+  | "vocab"
+  | "phrases"
+  | "pronunciation"
+  | "listening"
+  | "conversation"
+  | "journal";
+
+export interface VocabItem {
+  id: string;
+  it: string;
+  fr: string;
+  category: string;
+  /** 1 = coeur des 1000 mots (niveau survie), 2 = vocabulaire de continuation */
+  tier: 1 | 2;
+}
+
+export interface PhraseItem {
+  id: string;
+  it: string;
+  fr: string;
+  /** 1 = phrases de survie, 2 = phrases de conversation */
+  tier: 1 | 2;
+  tags: string[];
+}
+
+/** Carte générique pour le moteur de répétition espacée (SM-2). */
+export interface SRSCard {
+  id: string;
+  /** facteur de facilité, >= 1.3 */
+  easiness: number;
+  /** intervalle courant en jours */
+  interval: number;
+  repetitions: number;
+  /** date ISO à laquelle la carte redevient due */
+  dueDate: string;
+  lastGrade?: number;
+}
+
+export type SRSDeckState = Record<string, SRSCard>;
+
+export interface ListeningResource {
+  id: string;
+  title: string;
+  description: string;
+  level: Level;
+  url: string;
+  source: string;
+}
+
+export interface ConversationScenario {
+  id: string;
+  level: Level;
+  title: string;
+  description: string;
+  systemPrompt: string;
+}
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface JournalEntry {
+  id: string;
+  date: string;
+  text: string;
+  correction: string | null;
+  createdAt: string;
+}
+
+export interface ListeningLog {
+  /** clé YYYY-MM-DD -> minutes écoutées ce jour */
+  minutesByDay: Record<string, number>;
+}
+
+export interface ConversationLog {
+  /** horodatages ISO de chaque session de conversation terminée */
+  sessions: string[];
+}
