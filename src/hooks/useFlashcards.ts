@@ -26,6 +26,20 @@ function idsKey(items: FlashcardItem[]): string {
   return items.map((i) => i.id).join("|");
 }
 
+function dueIds(ids: string[], items: FlashcardItem[], deck: SRSDeckState): string[] {
+  const now = new Date();
+  return ids.filter((id) => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return false;
+    // Une carte jamais vue (absente du deck) n'a pas encore de date
+    // d'échéance : elle est due par définition, pas de comparaison à faire
+    // (créer une SRSCard ici pour la comparer à `now` serait sujet à une
+    // course avec l'horodatage interne de createCard).
+    const card = deck[item.id];
+    return !card || isDue(card, now);
+  });
+}
+
 export function useFlashcards({ items, deck, onDeckChange }: Options) {
   const [userAnswer, setUserAnswer] = useState("");
   const [checked, setChecked] = useState(false);
@@ -36,30 +50,31 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
   const [order, setOrder] = useState<string[]>(() => shuffle(items.map((i) => i.id)));
   const orderKeyRef = useRef(idsKey(items));
 
+  // File de révision de la session en cours. Contrairement à un simple
+  // filtre "due" recalculé à chaque rendu, une réponse fausse remet
+  // explicitement la carte plus loin dans cette file (voir `grade`) au
+  // lieu d'attendre les 10 min de pénalité programmées par gradeCard :
+  // sinon, revoir 50 cartes d'un coup obligerait à attendre 10 min à
+  // chaque erreur avant de pouvoir la retravailler dans la même session.
+  const [sessionQueue, setSessionQueue] = useState<string[]>(() =>
+    dueIds(order, items, deck),
+  );
+
   useEffect(() => {
     const key = idsKey(items);
     if (key !== orderKeyRef.current) {
       orderKeyRef.current = key;
-      setOrder(shuffle(items.map((i) => i.id)));
+      const newOrder = shuffle(items.map((i) => i.id));
+      setOrder(newOrder);
+      setSessionQueue(dueIds(newOrder, items, deck));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
 
-  const queue = useMemo(() => {
-    const now = new Date();
-    return order
-      .map((id) => items.find((i) => i.id === id))
-      .filter((item): item is FlashcardItem => Boolean(item))
-      .filter((item) => {
-        // Une carte jamais vue (absente du deck) n'a pas encore de date
-        // d'échéance : elle est due par définition, pas de comparaison à
-        // faire (créer une SRSCard ici pour la comparer à `now` serait
-        // sujet à une course avec l'horodatage interne de createCard).
-        const card = deck[item.id];
-        return !card || isDue(card, now);
-      });
-  }, [order, items, deck]);
-
-  const currentItem = queue[0] ?? null;
+  const currentItem = useMemo(
+    () => (sessionQueue.length ? (items.find((i) => i.id === sessionQueue[0]) ?? null) : null),
+    [sessionQueue, items],
+  );
   const currentCard = currentItem ? (deck[currentItem.id] ?? createCard(currentItem.id)) : null;
 
   const direction = useMemo<Direction>(
@@ -109,6 +124,15 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
       onDeckChange({ ...deck, [updated.id]: updated });
       setUserAnswer("");
       setChecked(false);
+      setSessionQueue((q) => {
+        const rest = q.slice(1);
+        if (value >= 3) return rest;
+        // Réponse fausse ("Encore") : remise quelques cartes plus loin
+        // dans la file de la session (pas juste après) pour laisser
+        // d'autres cartes s'intercaler avant de la revoir.
+        const requeueAt = Math.min(3, rest.length);
+        return [...rest.slice(0, requeueAt), updated.id, ...rest.slice(requeueAt)];
+      });
     },
     [currentItem, currentCard, deck, onDeckChange],
   );
@@ -127,7 +151,7 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
     checkAnswer,
     giveUp,
     grade,
-    dueCount: queue.length,
+    dueCount: sessionQueue.length,
     totalCount: items.length,
     knownCount,
   };
