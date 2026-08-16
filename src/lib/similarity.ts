@@ -67,7 +67,10 @@ export function answerCandidates(raw: string): string[] {
     .map((part) => stripEllipsis(part))
     .filter(Boolean);
 
-  return candidates.length ? candidates : [stripEllipsis(raw)];
+  // Le texte complet tel qu'affiché ("ils / elles") est aussi accepté tel
+  // quel : quelqu'un qui retape ce qu'il voit à l'écran ne doit pas être
+  // pénalisé sous prétexte qu'il n'a choisi aucune des variantes séparées.
+  return [...new Set([...(candidates.length ? candidates : []), stripEllipsis(raw)])];
 }
 
 /** Meilleur score parmi toutes les formulations acceptables de `expected`. */
