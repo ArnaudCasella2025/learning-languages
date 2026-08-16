@@ -8,6 +8,8 @@ export interface FlashcardItem {
   id: string;
   it: string;
   fr: string;
+  /** Translittération latine du champ `it` (langues à écriture non-latine, ex. arabe). */
+  translit?: string;
 }
 
 export type Direction = "it-fr" | "fr-it";
@@ -67,11 +69,16 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
   );
 
   const prompt = currentItem ? (direction === "it-fr" ? currentItem.it : currentItem.fr) : "";
+  const promptTranslit = currentItem && direction === "it-fr" ? currentItem.translit : undefined;
   const expectedAnswer = currentItem
     ? direction === "it-fr"
       ? currentItem.fr
       : currentItem.it
     : "";
+  // Translittération acceptée comme réponse alternative uniquement dans le
+  // sens fr -> langue cible (écriture non-latine, ex. arabe) : dans l'autre
+  // sens, le prompt affiche déjà le mot en écriture originale.
+  const expectedTranslit = currentItem && direction === "fr-it" ? currentItem.translit : undefined;
 
   const knownCount = items.filter((item) => {
     const card = deck[item.id];
@@ -89,9 +96,11 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
 
   const result = useMemo(() => {
     if (!checked || !expectedAnswer) return null;
-    const score = bestAnswerScore(expectedAnswer, userAnswer);
+    const score = expectedTranslit
+      ? Math.max(bestAnswerScore(expectedAnswer, userAnswer), bestAnswerScore(expectedTranslit, userAnswer))
+      : bestAnswerScore(expectedAnswer, userAnswer);
     return { correct: score >= CORRECT_THRESHOLD, score };
-  }, [checked, expectedAnswer, userAnswer]);
+  }, [checked, expectedAnswer, expectedTranslit, userAnswer]);
 
   const grade = useCallback(
     (value: number) => {
@@ -108,7 +117,9 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
     currentItem,
     direction,
     prompt,
+    promptTranslit,
     expectedAnswer,
+    expectedTranslit,
     userAnswer,
     setUserAnswer,
     checked,

@@ -6,6 +6,7 @@ import { todayKey } from "../lib/storage";
 interface Props {
   apiKey: string;
   languageLabel: string;
+  rtl?: boolean;
   correctionSystemPrompt: string;
   entries: JournalEntry[];
   onEntriesChange: (entries: JournalEntry[]) => void;
@@ -27,6 +28,7 @@ function computeStreak(entries: JournalEntry[]): number {
 export function Journal({
   apiKey,
   languageLabel,
+  rtl,
   correctionSystemPrompt,
   entries,
   onEntriesChange,
@@ -96,7 +98,8 @@ export function Journal({
         className="journal-input"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={"Oggi ho...\nStamattina...\n..."}
+        placeholder={`Écris 5 phrases en ${languageLabel.toLowerCase()}...`}
+        dir={rtl ? "rtl" : "ltr"}
         rows={6}
       />
       {error && <p className="error-text">{error}</p>}
@@ -108,9 +111,13 @@ export function Journal({
         {sorted.map((entry) => (
           <div key={entry.id} className="journal-entry">
             <div className="journal-date">{entry.date}</div>
-            <div className="journal-original">{entry.text}</div>
+            <div className="journal-original" dir={rtl ? "rtl" : "ltr"}>
+              {entry.text}
+            </div>
             {entry.correction && (
-              <div className="journal-correction">{entry.correction}</div>
+              <div className="journal-correction" dir={rtl ? "rtl" : "ltr"}>
+                {entry.correction}
+              </div>
             )}
           </div>
         ))}

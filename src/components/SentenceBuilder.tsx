@@ -9,6 +9,8 @@ interface SentenceItem {
 
 interface Props {
   items: SentenceItem[];
+  languageLabel: string;
+  rtl?: boolean;
   onBack: () => void;
 }
 
@@ -16,7 +18,8 @@ function wordsOf(item: SentenceItem | null): string[] {
   return item ? item.it.split(/\s+/) : [];
 }
 
-export function SentenceBuilder({ items, onBack }: Props) {
+export function SentenceBuilder({ items, languageLabel, rtl, onBack }: Props) {
+  const dir = rtl ? "rtl" : "ltr";
   const [order] = useState(() => shuffle(items.map((_, i) => i)));
   const [position, setPosition] = useState(0);
   const [pool, setPool] = useState<number[]>([]);
@@ -78,13 +81,14 @@ export function SentenceBuilder({ items, onBack }: Props) {
       </button>
       <h2>Constructeur de phrases</h2>
       <p className="module-sub">
-        {position + 1}/{items.length} · remets les mots italiens dans l'ordre
+        {position + 1}/{items.length} · remets les mots en {languageLabel.toLowerCase()} dans
+        l'ordre
       </p>
 
       <div className="sentence-builder-card">
         <p className="sentence-builder-prompt">{current.fr}</p>
 
-        <div className="sentence-builder-answer">
+        <div className="sentence-builder-answer" dir={dir}>
           {answer.length === 0 && (
             <span className="hint">Touche les mots ci-dessous, dans l'ordre</span>
           )}
@@ -95,7 +99,7 @@ export function SentenceBuilder({ items, onBack }: Props) {
           ))}
         </div>
 
-        <div className="sentence-builder-pool">
+        <div className="sentence-builder-pool" dir={dir}>
           {pool.map((i) => (
             <button key={i} className="chip" onClick={() => pickChip(i)}>
               {words[i]}
@@ -105,7 +109,13 @@ export function SentenceBuilder({ items, onBack }: Props) {
 
         {checked && (
           <p className={isCorrect ? "score-great" : "score-low"}>
-            {isCorrect ? "✅ Correct !" : `❌ Pas tout à fait. Réponse : ${current.it}`}
+            {isCorrect ? (
+              "✅ Correct !"
+            ) : (
+              <>
+                ❌ Pas tout à fait. Réponse : <span dir={dir}>{current.it}</span>
+              </>
+            )}
           </p>
         )}
       </div>

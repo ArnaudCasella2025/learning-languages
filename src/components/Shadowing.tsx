@@ -8,10 +8,11 @@ import { usePersisted } from "../hooks/usePersisted";
 interface Props {
   sources: GeneratedPodcast[];
   locale: string;
+  rtl?: boolean;
   onBack: () => void;
 }
 
-export function Shadowing({ sources, locale, onBack }: Props) {
+export function Shadowing({ sources, locale, rtl, onBack }: Props) {
   const [selected, setSelected] = useState<GeneratedPodcast | null>(null);
   const [index, setIndex] = useState(0);
   const [rate, setRate] = usePersisted(store.getPodcastRate, store.setPodcastRate);
@@ -76,7 +77,9 @@ export function Shadowing({ sources, locale, onBack }: Props) {
       </p>
 
       <div className="pronunciation-card">
-        <div className="pronunciation-text">{current}</div>
+        <div className="pronunciation-text" dir={rtl ? "rtl" : "ltr"}>
+          {current}
+        </div>
         <div className="pronunciation-actions">
           <button onClick={() => speak(current)}>🔊 Écouter</button>
         </div>

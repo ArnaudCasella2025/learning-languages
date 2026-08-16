@@ -8,7 +8,19 @@ import {
   conjugations as itConjugations,
   grammarNotes as itGrammarNotes,
   PRONOUN_LABELS as itPronounLabels,
+  TENSE_LABELS as itTenseLabels,
 } from "./it/grammar";
+import { vocab as arVocab } from "./ar/vocab";
+import { phrases as arPhrases } from "./ar/phrases";
+import { listeningResources as arListening } from "./ar/listening";
+import { scenarios as arScenarios, CORRECTION_SYSTEM_PROMPT as arCorrection } from "./ar/scenarios";
+import { milestonePodcasts as arMilestonePodcasts } from "./ar/podcasts";
+import {
+  conjugations as arConjugations,
+  grammarNotes as arGrammarNotes,
+  PRONOUN_LABELS as arPronounLabels,
+  TENSE_LABELS as arTenseLabels,
+} from "./ar/grammar";
 
 /**
  * Registre des langues disponibles dans l'appli. Pour ajouter une langue :
@@ -30,7 +42,25 @@ export const LANGUAGES: Record<string, LanguageConfig> = {
     milestonePodcasts: itMilestonePodcasts,
     pronounLabels: itPronounLabels,
     conjugations: itConjugations,
+    tenseLabels: itTenseLabels,
     grammarNotes: itGrammarNotes,
+  },
+  ar: {
+    code: "ar",
+    label: "Arabe",
+    flag: "🇸🇦",
+    ttsLocale: "ar-SA",
+    rtl: true,
+    vocab: arVocab,
+    phrases: arPhrases,
+    listeningResources: arListening,
+    scenarios: arScenarios,
+    correctionSystemPrompt: arCorrection,
+    milestonePodcasts: arMilestonePodcasts,
+    pronounLabels: arPronounLabels,
+    conjugations: arConjugations,
+    tenseLabels: arTenseLabels,
+    grammarNotes: arGrammarNotes,
   },
 };
 

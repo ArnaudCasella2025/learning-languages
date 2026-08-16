@@ -9,6 +9,8 @@ export const PRONOUN_LABELS: [string, string, string, string, string, string] = 
   "loro",
 ];
 
+export const TENSE_LABELS: [string, string] = ["Présent", "Passé composé"];
+
 export const conjugations: VerbConjugation[] = [
   // Modèles réguliers
   {
@@ -16,8 +18,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "parler (modèle -ARE)",
     group: "are",
     auxiliary: "avere",
-    presente: ["parlo", "parli", "parla", "parliamo", "parlate", "parlano"],
-    passatoProssimo: [
+    tense1: ["parlo", "parli", "parla", "parliamo", "parlate", "parlano"],
+    tense2: [
       "ho parlato",
       "hai parlato",
       "ha parlato",
@@ -31,8 +33,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "vendre (modèle -ERE)",
     group: "ere",
     auxiliary: "avere",
-    presente: ["vendo", "vendi", "vende", "vendiamo", "vendete", "vendono"],
-    passatoProssimo: [
+    tense1: ["vendo", "vendi", "vende", "vendiamo", "vendete", "vendono"],
+    tense2: [
       "ho venduto",
       "hai venduto",
       "ha venduto",
@@ -46,8 +48,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "dormir (modèle -IRE)",
     group: "ire",
     auxiliary: "avere",
-    presente: ["dormo", "dormi", "dorme", "dormiamo", "dormite", "dormono"],
-    passatoProssimo: [
+    tense1: ["dormo", "dormi", "dorme", "dormiamo", "dormite", "dormono"],
+    tense2: [
       "ho dormito",
       "hai dormito",
       "ha dormito",
@@ -61,8 +63,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "comprendre (modèle -IRE avec -isc-)",
     group: "ire-isc",
     auxiliary: "avere",
-    presente: ["capisco", "capisci", "capisce", "capiamo", "capite", "capiscono"],
-    passatoProssimo: [
+    tense1: ["capisco", "capisci", "capisce", "capiamo", "capite", "capiscono"],
+    tense2: [
       "ho capito",
       "hai capito",
       "ha capito",
@@ -78,8 +80,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "être",
     group: "irregular",
     auxiliary: "essere",
-    presente: ["sono", "sei", "è", "siamo", "siete", "sono"],
-    passatoProssimo: [
+    tense1: ["sono", "sei", "è", "siamo", "siete", "sono"],
+    tense2: [
       "sono stato/a",
       "sei stato/a",
       "è stato/a",
@@ -93,8 +95,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "avoir",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["ho", "hai", "ha", "abbiamo", "avete", "hanno"],
-    passatoProssimo: [
+    tense1: ["ho", "hai", "ha", "abbiamo", "avete", "hanno"],
+    tense2: [
       "ho avuto",
       "hai avuto",
       "ha avuto",
@@ -108,8 +110,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "aller",
     group: "irregular",
     auxiliary: "essere",
-    presente: ["vado", "vai", "va", "andiamo", "andate", "vanno"],
-    passatoProssimo: [
+    tense1: ["vado", "vai", "va", "andiamo", "andate", "vanno"],
+    tense2: [
       "sono andato/a",
       "sei andato/a",
       "è andato/a",
@@ -123,8 +125,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "faire",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["faccio", "fai", "fa", "facciamo", "fate", "fanno"],
-    passatoProssimo: [
+    tense1: ["faccio", "fai", "fa", "facciamo", "fate", "fanno"],
+    tense2: [
       "ho fatto",
       "hai fatto",
       "ha fatto",
@@ -138,8 +140,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "dire",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["dico", "dici", "dice", "diciamo", "dite", "dicono"],
-    passatoProssimo: [
+    tense1: ["dico", "dici", "dice", "diciamo", "dite", "dicono"],
+    tense2: [
       "ho detto",
       "hai detto",
       "ha detto",
@@ -153,8 +155,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "pouvoir",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["posso", "puoi", "può", "possiamo", "potete", "possono"],
-    passatoProssimo: [
+    tense1: ["posso", "puoi", "può", "possiamo", "potete", "possono"],
+    tense2: [
       "ho potuto",
       "hai potuto",
       "ha potuto",
@@ -168,8 +170,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "vouloir",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["voglio", "vuoi", "vuole", "vogliamo", "volete", "vogliono"],
-    passatoProssimo: [
+    tense1: ["voglio", "vuoi", "vuole", "vogliamo", "volete", "vogliono"],
+    tense2: [
       "ho voluto",
       "hai voluto",
       "ha voluto",
@@ -183,8 +185,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "devoir",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["devo", "devi", "deve", "dobbiamo", "dovete", "devono"],
-    passatoProssimo: [
+    tense1: ["devo", "devi", "deve", "dobbiamo", "dovete", "devono"],
+    tense2: [
       "ho dovuto",
       "hai dovuto",
       "ha dovuto",
@@ -198,8 +200,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "savoir",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["so", "sai", "sa", "sappiamo", "sapete", "sanno"],
-    passatoProssimo: [
+    tense1: ["so", "sai", "sa", "sappiamo", "sapete", "sanno"],
+    tense2: [
       "ho saputo",
       "hai saputo",
       "ha saputo",
@@ -213,8 +215,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "être / rester",
     group: "irregular",
     auxiliary: "essere",
-    presente: ["sto", "stai", "sta", "stiamo", "state", "stanno"],
-    passatoProssimo: [
+    tense1: ["sto", "stai", "sta", "stiamo", "state", "stanno"],
+    tense2: [
       "sono stato/a",
       "sei stato/a",
       "è stato/a",
@@ -228,8 +230,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "venir",
     group: "irregular",
     auxiliary: "essere",
-    presente: ["vengo", "vieni", "viene", "veniamo", "venite", "vengono"],
-    passatoProssimo: [
+    tense1: ["vengo", "vieni", "viene", "veniamo", "venite", "vengono"],
+    tense2: [
       "sono venuto/a",
       "sei venuto/a",
       "è venuto/a",
@@ -243,8 +245,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "donner",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["do", "dai", "dà", "diamo", "date", "danno"],
-    passatoProssimo: [
+    tense1: ["do", "dai", "dà", "diamo", "date", "danno"],
+    tense2: [
       "ho dato",
       "hai dato",
       "ha dato",
@@ -258,8 +260,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "sortir",
     group: "irregular",
     auxiliary: "essere",
-    presente: ["esco", "esci", "esce", "usciamo", "uscite", "escono"],
-    passatoProssimo: [
+    tense1: ["esco", "esci", "esce", "usciamo", "uscite", "escono"],
+    tense2: [
       "sono uscito/a",
       "sei uscito/a",
       "è uscito/a",
@@ -273,8 +275,8 @@ export const conjugations: VerbConjugation[] = [
     meaning: "boire",
     group: "irregular",
     auxiliary: "avere",
-    presente: ["bevo", "bevi", "beve", "beviamo", "bevete", "bevono"],
-    passatoProssimo: [
+    tense1: ["bevo", "bevi", "beve", "beviamo", "bevete", "bevono"],
+    tense2: [
       "ho bevuto",
       "hai bevuto",
       "ha bevuto",

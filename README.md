@@ -1,9 +1,9 @@
 # Lingo Levels
 
 Appli web pour apprendre une langue en suivant une méthode en 3 niveaux
-(aujourd'hui : italien, le sélecteur en haut de l'appli est prêt à
-accueillir d'autres langues — voir « Ajouter une langue » plus bas).
-Aucune installation : une page ouverte dans un navigateur suffit. Toutes
+(aujourd'hui : italien et arabe standard moderne — le sélecteur en haut de
+l'appli est prêt à accueillir d'autres langues, voir « Ajouter une langue »
+plus bas). Aucune installation : une page ouverte dans un navigateur suffit. Toutes
 les données (progression, journal, podcasts générés, clé API) restent
 **dans le navigateur** (localStorage) par défaut — rien n'est envoyé à un
 serveur autre que l'API Claude quand tu utilises les fonctionnalités IA.
@@ -14,15 +14,16 @@ activée — voir « Synchronisation multi-appareils » plus bas.
 
 Les cibles de vocabulaire ci-dessous s'appuient sur des repères usuels en
 acquisition des langues (CEFR, listes de fréquence) : ~600-1000 mots pour
-un niveau A1 fonctionnel, ~2000-2500 mots cumulés pour A2-B1. Le deck
-actuel (`src/data/it/vocab.ts`) compte **546 mots** (292 niveau 1 + 254
-niveau 2) — un bon départ, pas encore la cible complète ; voir « Étendre
+un niveau A1 fonctionnel, ~2000-2500 mots cumulés pour A2-B1. Les decks
+actuels sont un bon départ, pas encore la cible complète ; voir « Étendre
 le contenu ».
+- Italien (`src/data/it/vocab.ts`) : **546 mots** (292 niveau 1 + 254 niveau 2).
+- Arabe standard moderne (`src/data/ar/vocab.ts`) : **341 mots** (215 niveau 1 + 126 niveau 2).
 
 **Niveau 1 — Survie** (cible : 600-1000 mots)
 - Mots fréquents (flashcards à répétition espacée, algorithme SM-2)
 - Phrases de base de l'usage courant (flashcards)
-- Constructeur de phrases (remettre des mots italiens mélangés dans l'ordre)
+- Constructeur de phrases (remettre des mots de la langue apprise, mélangés, dans l'ordre)
 - Prononciation (écoute + reconnaissance vocale)
 - Écoute quotidienne (objectif 30 min/jour, podcasts par palier ou par thème)
 
@@ -227,10 +228,11 @@ façon. Pour ajouter un nouveau palier de podcast (par exemple 500 ou
 — il apparaîtra automatiquement dans la liste, verrouillé jusqu'à ce que
 le nombre de mots connus atteigne ce seuil.
 
-Les tableaux de conjugaison et notes de grammaire (`src/data/it/grammar.ts`)
-suivent le même principe : ajoute une entrée dans `conjugations` (verbe,
-sens, auxiliaire, 6 formes au présent et au passé composé) ou dans
-`grammarNotes` (titre, explication, exemples) pour l'étoffer.
+Les tableaux de conjugaison et notes de grammaire (`src/data/it/grammar.ts`,
+`src/data/ar/grammar.ts`) suivent le même principe : ajoute une entrée dans
+`conjugations` (verbe, sens, auxiliaire optionnel, 6 formes aux deux temps
+définis par `tenseLabels`) ou dans `grammarNotes` (titre, explication,
+exemples) pour l'étoffer.
 
 ## Ajouter une langue
 
@@ -238,12 +240,30 @@ L'appli est structurée pour accueillir plusieurs langues :
 
 1. Crée un dossier `src/data/<code>/` (ex. `src/data/en/`) avec
    `vocab.ts`, `phrases.ts`, `listening.ts`, `scenarios.ts`, `podcasts.ts`
-   et `grammar.ts`, sur le modèle de `src/data/it/`.
+   et `grammar.ts`, sur le modèle de `src/data/it/` (ou `src/data/ar/` pour
+   une langue à écriture non-latine).
 2. Ajoute une entrée dans le registre `src/data/languages.ts` (code,
    libellé, drapeau, locale BCP 47 pour la voix — ex. `en-US`).
 
 Le sélecteur de langue dans l'en-tête de l'appli affichera automatiquement
 la nouvelle langue.
+
+**Langue à écriture non-latine ou de droite à gauche (comme l'arabe) :**
+- Mets `rtl: true` dans l'entrée `LanguageConfig` : l'appli applique alors
+  `dir="rtl"` partout où le texte de la langue apprise s'affiche
+  (flashcards, prononciation, scripts de podcast, shadowing, conversation,
+  journal).
+- Ajoute un champ `translit` (translittération latine, facultatif) sur les
+  entrées de `vocab.ts`/`phrases.ts` : il s'affiche sous le mot ou la
+  phrase en écriture originale, et l'exercice « tape la réponse » des
+  flashcards accepte aussi bien l'écriture originale que la
+  translittération comme réponse valide (voir `src/data/ar/vocab.ts` et
+  `useFlashcards.ts`).
+- `src/lib/similarity.ts` normalise déjà les caractères arabes (bloc
+  Unicode U+0600–U+06FF) pour la comparaison de prononciation et les
+  réponses tapées : diacritiques (tashkeel) ignorés, variantes de hamza/ya
+  /ta marbuta uniformisées. À adapter si une future langue utilise un
+  autre système d'écriture (cyrillique, CJK...).
 
 ## Développement
 

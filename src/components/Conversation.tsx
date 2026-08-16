@@ -5,6 +5,8 @@ import { sendMessage, ClaudeApiError } from "../lib/claude";
 interface Props {
   level: Level;
   scenarios: ConversationScenario[];
+  languageLabel: string;
+  rtl?: boolean;
   apiKey: string;
   log: ConversationLog;
   onLogChange: (log: ConversationLog) => void;
@@ -22,6 +24,8 @@ function sessionsThisWeek(log: ConversationLog): number {
 export function Conversation({
   level,
   scenarios,
+  languageLabel,
+  rtl,
   apiKey,
   log,
   onLogChange,
@@ -114,7 +118,7 @@ export function Conversation({
       </button>
       <h2>{scenario.title}</h2>
 
-      <div className="chat-log">
+      <div className="chat-log" dir={rtl ? "rtl" : "ltr"}>
         {messages.length === 0 && (
           <p className="hint">Écris le premier message pour démarrer la conversation.</p>
         )}
@@ -138,7 +142,8 @@ export function Conversation({
               send();
             }
           }}
-          placeholder="Scrivi in italiano..."
+          placeholder={`Écris en ${languageLabel.toLowerCase()}...`}
+          dir={rtl ? "rtl" : "ltr"}
           rows={2}
         />
         <button className="primary" onClick={send} disabled={loading || !input.trim()}>

@@ -74,9 +74,10 @@ export default function App() {
             title="Vocabulaire"
             languageLabel={language.label}
             languageFlag={language.flag}
+            rtl={language.rtl}
             items={language.vocab
               .filter((v) => v.tier <= tierCap)
-              .map((v) => ({ id: v.id, it: v.it, fr: v.fr }))}
+              .map((v) => ({ id: v.id, it: v.it, fr: v.fr, translit: v.translit }))}
             deck={vocabDeck}
             onDeckChange={setVocabDeck}
             onBack={back}
@@ -88,9 +89,10 @@ export default function App() {
             title="Phrases"
             languageLabel={language.label}
             languageFlag={language.flag}
+            rtl={language.rtl}
             items={language.phrases
               .filter((p) => p.tier <= tierCap)
-              .map((p) => ({ id: p.id, it: p.it, fr: p.fr }))}
+              .map((p) => ({ id: p.id, it: p.it, fr: p.fr, translit: p.translit }))}
             deck={phraseDeck}
             onDeckChange={setPhraseDeck}
             onBack={back}
@@ -101,8 +103,9 @@ export default function App() {
           <Pronunciation
             items={language.vocab
               .filter((v) => v.tier <= tierCap)
-              .map((v) => ({ id: v.id, text: v.it, translation: v.fr }))}
+              .map((v) => ({ id: v.id, text: v.it, translation: v.fr, translit: v.translit }))}
             locale={language.ttsLocale}
+            rtl={language.rtl}
             onBack={back}
           />
         );
@@ -112,6 +115,8 @@ export default function App() {
             items={language.phrases
               .filter((p) => p.tier <= tierCap)
               .map((p) => ({ id: p.id, it: p.it, fr: p.fr }))}
+            languageLabel={language.label}
+            rtl={language.rtl}
             onBack={back}
           />
         );
@@ -121,6 +126,8 @@ export default function App() {
             conjugations={language.conjugations}
             notes={language.grammarNotes}
             pronounLabels={language.pronounLabels}
+            tenseLabels={language.tenseLabels}
+            rtl={language.rtl}
             onBack={back}
           />
         );
@@ -140,6 +147,7 @@ export default function App() {
             level={level}
             languageLabel={language.label}
             locale={language.ttsLocale}
+            rtl={language.rtl}
             vocab={language.vocab}
             vocabDeck={vocabDeck}
             milestoneEpisodes={language.milestonePodcasts}
@@ -155,6 +163,7 @@ export default function App() {
           <Shadowing
             sources={[...language.milestonePodcasts.map(toPodcast), ...podcasts]}
             locale={language.ttsLocale}
+            rtl={language.rtl}
             onBack={back}
           />
         );
@@ -163,6 +172,8 @@ export default function App() {
           <Conversation
             level={level}
             scenarios={language.scenarios}
+            languageLabel={language.label}
+            rtl={language.rtl}
             apiKey={apiKey}
             log={conversationLog}
             onLogChange={setConversationLog}
@@ -175,6 +186,7 @@ export default function App() {
           <Journal
             apiKey={apiKey}
             languageLabel={language.label}
+            rtl={language.rtl}
             correctionSystemPrompt={language.correctionSystemPrompt}
             entries={journal}
             onEntriesChange={setJournal}

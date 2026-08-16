@@ -6,7 +6,16 @@ function normalize(s: string): string {
     .replace(/æ/g, "ae")
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
-    .replace(/[^a-z0-9\s]/g, "")
+    // Diacritiques arabes (tashkeel, U+064B-U+065F et U+0670) : ignorés
+    // pour la comparaison, comme les accents latins ci-dessus.
+    .replace(/[ً-ٰٟ]/g, "")
+    // Variantes de lettres arabes fréquemment interchangées à l'écrit
+    // (hamza sur alef, alef maksura, ta marbuta) : on les uniformise pour
+    // éviter de pénaliser une orthographe par ailleurs correcte.
+    .replace(/[آأإ]/g, "ا")
+    .replace(/ى/g, "ي")
+    .replace(/ة/g, "ه")
+    .replace(/[^a-z0-9؀-ۿ\s]/g, "")
     .trim()
     .replace(/\s+/g, " ");
 }

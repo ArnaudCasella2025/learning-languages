@@ -19,6 +19,8 @@ export interface VocabItem {
   category: string;
   /** 1 = coeur des 1000 mots (niveau survie), 2 = vocabulaire de continuation */
   tier: 1 | 2;
+  /** Translittération latine (langues à écriture non-latine, ex. arabe). */
+  translit?: string;
 }
 
 export interface PhraseItem {
@@ -28,6 +30,8 @@ export interface PhraseItem {
   /** 1 = phrases de survie, 2 = phrases de conversation */
   tier: 1 | 2;
   tags: string[];
+  /** Translittération latine (langues à écriture non-latine, ex. arabe). */
+  translit?: string;
 }
 
 /** Carte générique pour le moteur de répétition espacée (SM-2). */
@@ -89,18 +93,19 @@ export interface VerbConjugation {
   infinitive: string;
   meaning: string;
   group: string;
-  auxiliary: "avere" | "essere";
-  /** 6 personnes, dans l'ordre de `LanguageConfig.pronounLabels` */
-  presente: [string, string, string, string, string, string];
-  /** 6 personnes, dans l'ordre de `LanguageConfig.pronounLabels` */
-  passatoProssimo: [string, string, string, string, string, string];
+  /** Auxiliaire du temps composé, seulement si la langue en a un (italien : avere/essere). */
+  auxiliary?: string;
+  /** 6 personnes au 1er temps (ex. présent), dans l'ordre de `LanguageConfig.pronounLabels` */
+  tense1: [string, string, string, string, string, string];
+  /** 6 personnes au 2e temps (ex. passé), dans l'ordre de `LanguageConfig.pronounLabels` */
+  tense2: [string, string, string, string, string, string];
 }
 
 export interface GrammarNote {
   id: string;
   title: string;
   explanation: string;
-  examples: { it: string; fr: string }[];
+  examples: { it: string; fr: string; translit?: string }[];
 }
 
 export interface LanguageConfig {
@@ -109,6 +114,8 @@ export interface LanguageConfig {
   flag: string;
   /** locale BCP 47 pour la synthèse vocale et la reconnaissance vocale, ex. "it-IT" */
   ttsLocale: string;
+  /** true pour les langues qui s'écrivent de droite à gauche (ex. arabe). */
+  rtl?: boolean;
   vocab: VocabItem[];
   phrases: PhraseItem[];
   listeningResources: ListeningResource[];
@@ -117,6 +124,8 @@ export interface LanguageConfig {
   milestonePodcasts: Omit<GeneratedPodcast, "id" | "createdAt">[];
   pronounLabels: [string, string, string, string, string, string];
   conjugations: VerbConjugation[];
+  /** Libellés des deux temps affichés pour chaque verbe, ex. ["Présent", "Passé composé"]. */
+  tenseLabels: [string, string];
   grammarNotes: GrammarNote[];
 }
 

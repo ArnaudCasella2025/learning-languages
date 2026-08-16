@@ -3,8 +3,9 @@ import { pronunciationScore } from "../lib/similarity";
 import { findVoice } from "../lib/voices";
 
 interface Props {
-  items: { id: string; text: string; translation: string }[];
+  items: { id: string; text: string; translation: string; translit?: string }[];
   locale: string;
+  rtl?: boolean;
   onBack: () => void;
 }
 
@@ -30,7 +31,7 @@ function getSpeechRecognition(): (new () => SpeechRecognitionLike) | null {
 const speechSupported = typeof window !== "undefined" && !!getSpeechRecognition();
 const ttsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
 
-export function Pronunciation({ items, locale, onBack }: Props) {
+export function Pronunciation({ items, locale, rtl, onBack }: Props) {
   const [index, setIndex] = useState(0);
   const [listening, setListening] = useState(false);
   const [heard, setHeard] = useState<string | null>(null);
@@ -134,7 +135,10 @@ export function Pronunciation({ items, locale, onBack }: Props) {
       )}
 
       <div className="pronunciation-card">
-        <div className="pronunciation-text">{current.text}</div>
+        <div className="pronunciation-text" dir={rtl ? "rtl" : "ltr"}>
+          {current.text}
+        </div>
+        {current.translit && <div className="translit">{current.translit}</div>}
         <div className="pronunciation-translation">{current.translation}</div>
 
         <div className="pronunciation-actions">

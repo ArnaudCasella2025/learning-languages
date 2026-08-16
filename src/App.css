@@ -257,6 +257,14 @@ button.recording {
   font-size: 0.75em;
 }
 
+.translit,
+.flashcard-translit {
+  font-style: italic;
+  font-size: 0.85em;
+  color: var(--text);
+  opacity: 0.75;
+}
+
 .flashcard-answer-form {
   display: flex;
   flex-direction: column;

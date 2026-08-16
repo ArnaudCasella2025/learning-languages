@@ -11,6 +11,7 @@ interface Props {
   level: Level;
   languageLabel: string;
   locale: string;
+  rtl?: boolean;
   vocab: VocabItem[];
   vocabDeck: SRSDeckState;
   milestoneEpisodes: MilestoneEpisode[];
@@ -25,7 +26,15 @@ function knownCount(vocab: VocabItem[], deck: SRSDeckState): number {
   return vocab.filter((v) => deck[v.id]?.repetitions > 0).length;
 }
 
-function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string }) {
+function Player({
+  podcast,
+  locale,
+  rtl,
+}: {
+  podcast: GeneratedPodcast;
+  locale: string;
+  rtl?: boolean;
+}) {
   const [rate, setRate] = usePersisted(store.getPodcastRate, store.setPodcastRate);
   const [pauseMs, setPauseMs] = usePersisted(store.getPodcastPauseMs, store.setPodcastPauseMs);
   const { playing, progressPct, play, pause, stop, supported, voiceAvailable, voiceChecked } =
@@ -40,9 +49,9 @@ function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string
       {voiceChecked && !voiceAvailable && (
         <p className="hint">
           ⚠️ Aucune voix {locale} trouvée sur cet appareil : la lecture utilisera la voix par
-          défaut du navigateur (probablement française), pas une vraie voix italienne. Installe
-          une voix italienne dans les réglages de synthèse vocale de ton système ou navigateur
-          (voir le README) pour une meilleure prononciation.
+          défaut du navigateur (probablement française), pas une vraie voix dans la langue
+          apprise. Installe une voix correspondante dans les réglages de synthèse vocale de ton
+          système ou navigateur (voir le README) pour une meilleure prononciation.
         </p>
       )}
       <div className="progress-bar">
@@ -87,7 +96,9 @@ function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string
 
       <details>
         <summary>Voir le script</summary>
-        <p className="podcast-script">{podcast.script}</p>
+        <p className="podcast-script" dir={rtl ? "rtl" : "ltr"}>
+          {podcast.script}
+        </p>
       </details>
     </div>
   );
@@ -97,6 +108,7 @@ export function Podcasts({
   level,
   languageLabel,
   locale,
+  rtl,
   vocab,
   vocabDeck,
   milestoneEpisodes,
@@ -148,7 +160,7 @@ export function Podcasts({
           ← Retour aux podcasts
         </button>
         <h2>{selected.title}</h2>
-        <Player podcast={selected} locale={locale} />
+        <Player podcast={selected} locale={locale} rtl={rtl} />
       </div>
     );
   }

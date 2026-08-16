@@ -26,7 +26,7 @@ const CARDS_BY_LEVEL: Record<Level, CardDef[]> = {
     { id: "journal", icon: "📓", title: "Journal quotidien", description: "5 phrases corrigées par l'IA" },
   ],
   3: [
-    { id: "listening", icon: "🎧", title: "Contenus natifs", description: "Podcasts et médias italiens authentiques" },
+    { id: "listening", icon: "🎧", title: "Contenus natifs", description: "Podcasts et médias authentiques dans la langue apprise" },
     { id: "aiPodcasts", icon: "🎙️", title: "Podcasts générés", description: "Sur un thème et un registre, au niveau natif" },
     { id: "shadowing", icon: "🗣️", title: "Shadowing", description: "Répète en même temps qu'un audio natif" },
     { id: "conversation", icon: "🤖", title: "Conversations longues", description: "Sujets techniques, à vitesse native" },

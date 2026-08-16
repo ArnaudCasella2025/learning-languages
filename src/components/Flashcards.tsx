@@ -7,6 +7,7 @@ interface Props {
   title: string;
   languageLabel: string;
   languageFlag: string;
+  rtl?: boolean;
   items: FlashcardItem[];
   deck: SRSDeckState;
   onDeckChange: (deck: SRSDeckState) => void;
@@ -17,6 +18,7 @@ export function Flashcards({
   title,
   languageLabel,
   languageFlag,
+  rtl,
   items,
   deck,
   onDeckChange,
@@ -26,7 +28,9 @@ export function Flashcards({
     currentItem,
     direction,
     prompt,
+    promptTranslit,
     expectedAnswer,
+    expectedTranslit,
     userAnswer,
     setUserAnswer,
     checked,
@@ -41,6 +45,8 @@ export function Flashcards({
 
   const promptFlag = direction === "it-fr" ? languageFlag : FRENCH_FLAG;
   const answerFlag = direction === "it-fr" ? FRENCH_FLAG : languageFlag;
+  const promptDir = direction === "it-fr" && rtl ? "rtl" : "ltr";
+  const answerDir = direction === "fr-it" && rtl ? "rtl" : "ltr";
 
   return (
     <div className="module-screen">
@@ -66,12 +72,13 @@ export function Flashcards({
               ? `${languageLabel.toLowerCase()} → français`
               : `français → ${languageLabel.toLowerCase()}`}
           </div>
-          <div className="flashcard-front">
+          <div className="flashcard-front" dir={promptDir}>
             <span className="flashcard-flag" aria-hidden="true">
               {promptFlag}
             </span>
             {prompt}
           </div>
+          {promptTranslit && <div className="flashcard-translit">{promptTranslit}</div>}
 
           <form
             className="flashcard-answer-form"
@@ -84,7 +91,10 @@ export function Flashcards({
               type="text"
               value={userAnswer}
               onChange={(e) => setUserAnswer(e.target.value)}
-              placeholder="Ta réponse..."
+              placeholder={
+                expectedTranslit ? "Ta réponse (écriture originale ou translittération)..." : "Ta réponse..."
+              }
+              dir={answerDir}
               disabled={checked}
               autoFocus
             />
@@ -109,7 +119,10 @@ export function Flashcards({
                 <span className="flashcard-flag" aria-hidden="true">
                   {answerFlag}
                 </span>
-                Réponse : {expectedAnswer}
+                Réponse : <span dir={answerDir}>{expectedAnswer}</span>
+                {expectedTranslit && (
+                  <span className="flashcard-translit"> ({expectedTranslit})</span>
+                )}
               </p>
             </div>
           )}

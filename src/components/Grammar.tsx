@@ -5,11 +5,14 @@ interface Props {
   conjugations: VerbConjugation[];
   notes: GrammarNote[];
   pronounLabels: [string, string, string, string, string, string];
+  tenseLabels: [string, string];
+  rtl?: boolean;
   onBack: () => void;
 }
 
-export function Grammar({ conjugations, notes, pronounLabels, onBack }: Props) {
+export function Grammar({ conjugations, notes, pronounLabels, tenseLabels, rtl, onBack }: Props) {
   const [selectedVerb, setSelectedVerb] = useState<VerbConjugation | null>(null);
+  const dir = rtl ? "rtl" : "ltr";
 
   if (selectedVerb) {
     return (
@@ -17,28 +20,28 @@ export function Grammar({ conjugations, notes, pronounLabels, onBack }: Props) {
         <button className="back-link" onClick={() => setSelectedVerb(null)}>
           ← Retour à la grammaire
         </button>
-        <h2>{selectedVerb.infinitive}</h2>
+        <h2 dir={dir}>{selectedVerb.infinitive}</h2>
         <p className="module-sub">{selectedVerb.meaning}</p>
 
-        <h3>Présent</h3>
+        <h3>{tenseLabels[0]}</h3>
         <table className="grammar-table">
           <tbody>
             {pronounLabels.map((pn, i) => (
               <tr key={pn}>
                 <td>{pn}</td>
-                <td>{selectedVerb.presente[i]}</td>
+                <td dir={dir}>{selectedVerb.tense1[i]}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <h3>Passé composé ({selectedVerb.auxiliary})</h3>
+        <h3>{tenseLabels[1]}{selectedVerb.auxiliary ? ` (${selectedVerb.auxiliary})` : ""}</h3>
         <table className="grammar-table">
           <tbody>
             {pronounLabels.map((pn, i) => (
               <tr key={pn}>
                 <td>{pn}</td>
-                <td>{selectedVerb.passatoProssimo[i]}</td>
+                <td dir={dir}>{selectedVerb.tense2[i]}</td>
               </tr>
             ))}
           </tbody>
@@ -59,7 +62,7 @@ export function Grammar({ conjugations, notes, pronounLabels, onBack }: Props) {
       <div className="resource-list">
         {conjugations.map((v) => (
           <button key={v.infinitive} className="scenario-card" onClick={() => setSelectedVerb(v)}>
-            <strong>{v.infinitive}</strong>
+            <strong dir={dir}>{v.infinitive}</strong>
             <p>{v.meaning}</p>
           </button>
         ))}
@@ -74,7 +77,8 @@ export function Grammar({ conjugations, notes, pronounLabels, onBack }: Props) {
             <ul>
               {n.examples.map((ex, i) => (
                 <li key={i}>
-                  <strong>{ex.it}</strong> — {ex.fr}
+                  <strong dir={dir}>{ex.it}</strong>
+                  {ex.translit && <em className="translit"> ({ex.translit})</em>} — {ex.fr}
                 </li>
               ))}
             </ul>
