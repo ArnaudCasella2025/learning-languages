@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import type { SRSDeckState } from "../types";
 import { useFlashcards, type FlashcardItem } from "../hooks/useFlashcards";
+import { remainingInCurrentBatch, unlockedCount } from "../lib/batches";
 
 const FRENCH_FLAG = "🇫🇷";
 
@@ -9,6 +11,8 @@ interface Props {
   languageFlag: string;
   rtl?: boolean;
   items: FlashcardItem[];
+  /** Taille des paliers de déblocage progressif (voir src/lib/batches.ts). */
+  batchSize: number;
   deck: SRSDeckState;
   onDeckChange: (deck: SRSDeckState) => void;
   onBack: () => void;
@@ -20,10 +24,21 @@ export function Flashcards({
   languageFlag,
   rtl,
   items,
+  batchSize,
   deck,
   onDeckChange,
   onBack,
 }: Props) {
+  const unlocked = useMemo(
+    () => unlockedCount(items, deck, batchSize),
+    [items, deck, batchSize],
+  );
+  const visibleItems = useMemo(() => items.slice(0, unlocked), [items, unlocked]);
+  const toUnlockNext = useMemo(
+    () => remainingInCurrentBatch(items, deck, batchSize, unlocked),
+    [items, deck, batchSize, unlocked],
+  );
+
   const {
     currentItem,
     direction,
@@ -41,7 +56,7 @@ export function Flashcards({
     dueCount,
     totalCount,
     knownCount,
-  } = useFlashcards({ items, deck, onDeckChange });
+  } = useFlashcards({ items: visibleItems, deck, onDeckChange });
 
   const promptFlag = direction === "it-fr" ? languageFlag : FRENCH_FLAG;
   const answerFlag = direction === "it-fr" ? FRENCH_FLAG : languageFlag;
@@ -55,8 +70,15 @@ export function Flashcards({
       </button>
       <h2>{title}</h2>
       <p className="module-sub">
-        {knownCount}/{totalCount} cartes déjà vues · {dueCount} à réviser maintenant
+        {knownCount}/{totalCount} cartes débloquées maîtrisées · {dueCount} à réviser maintenant
+        {unlocked < items.length && ` · ${unlocked}/${items.length} cartes débloquées au total`}
       </p>
+      {unlocked < items.length && (
+        <p className="hint">
+          🔒 Encore {toUnlockNext} carte{toUnlockNext > 1 ? "s" : ""} à maîtriser dans ce palier
+          pour débloquer {Math.min(batchSize, items.length - unlocked)} cartes de plus.
+        </p>
+      )}
 
       {!currentItem && (
         <div className="empty-state">

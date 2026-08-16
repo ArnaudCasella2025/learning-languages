@@ -21,6 +21,12 @@ import { Settings } from "./components/Settings";
 
 type Tab = "dashboard" | Level | "settings";
 
+// Déblocage progressif : voir src/lib/batches.ts. Un palier de mots se
+// débloque d'un coup, les phrases (plus longues à assimiler) par plus
+// petits paliers.
+const VOCAB_BATCH_SIZE = 50;
+const PHRASE_BATCH_SIZE = 25;
+
 export default function App() {
   const [tab, setTab] = useState<Tab>("dashboard");
   const [activeModule, setActiveModule] = useState<ModuleId | null>(null);
@@ -78,6 +84,7 @@ export default function App() {
             items={language.vocab
               .filter((v) => v.tier <= tierCap)
               .map((v) => ({ id: v.id, it: v.it, fr: v.fr, translit: v.translit }))}
+            batchSize={VOCAB_BATCH_SIZE}
             deck={vocabDeck}
             onDeckChange={setVocabDeck}
             onBack={back}
@@ -93,6 +100,7 @@ export default function App() {
             items={language.phrases
               .filter((p) => p.tier <= tierCap)
               .map((p) => ({ id: p.id, it: p.it, fr: p.fr, translit: p.translit }))}
+            batchSize={PHRASE_BATCH_SIZE}
             deck={phraseDeck}
             onDeckChange={setPhraseDeck}
             onBack={back}
