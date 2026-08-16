@@ -19,6 +19,8 @@ const KEYS = {
   language: "ll_language_v1",
   podcasts: "ll_podcasts_v1",
   syncCode: "ll_sync_code_v1",
+  podcastRate: "ll_podcast_rate_v1",
+  podcastPauseMs: "ll_podcast_pause_ms_v1",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -70,6 +72,12 @@ export const store = {
    */
   getSyncCode: () => read<string>(KEYS.syncCode, ""),
   setSyncCode: (v: string) => write(KEYS.syncCode, v),
+
+  /** Préférences de lecture des podcasts (locales à l'appareil, pas synchronisées). */
+  getPodcastRate: () => read<number>(KEYS.podcastRate, 0.95),
+  setPodcastRate: (v: number) => write(KEYS.podcastRate, v),
+  getPodcastPauseMs: () => read<number>(KEYS.podcastPauseMs, 300),
+  setPodcastPauseMs: (v: number) => write(KEYS.podcastPauseMs, v),
 };
 
 export function todayKey(date: Date = new Date()): string {

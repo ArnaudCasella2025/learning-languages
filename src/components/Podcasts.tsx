@@ -2,6 +2,8 @@ import { useState } from "react";
 import type { GeneratedPodcast, Level, SRSDeckState, VocabItem } from "../types";
 import { sendMessage, ClaudeApiError } from "../lib/claude";
 import { themePodcastPrompt } from "../lib/podcastPrompt";
+import { store } from "../lib/storage";
+import { usePersisted } from "../hooks/usePersisted";
 import { useTtsReader } from "../hooks/useTtsReader";
 
 type MilestoneEpisode = Omit<GeneratedPodcast, "id" | "createdAt">;
@@ -29,8 +31,10 @@ function toPodcast(episode: MilestoneEpisode): GeneratedPodcast {
 }
 
 function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string }) {
+  const [rate, setRate] = usePersisted(store.getPodcastRate, store.setPodcastRate);
+  const [pauseMs, setPauseMs] = usePersisted(store.getPodcastPauseMs, store.setPodcastPauseMs);
   const { playing, progressPct, play, pause, stop, supported, voiceAvailable, voiceChecked } =
-    useTtsReader(podcast.script, locale);
+    useTtsReader(podcast.script, locale, rate, pauseMs);
 
   if (!supported) {
     return <p className="hint">Synthèse vocale non disponible dans ce navigateur.</p>;
@@ -55,6 +59,37 @@ function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string
         </button>
         <button onClick={stop}>⏹ Arrêter</button>
       </div>
+
+      <div className="podcast-settings">
+        <label className="podcast-settings-row">
+          <span>Vitesse</span>
+          <input
+            type="range"
+            min="0.5"
+            max="1.5"
+            step="0.05"
+            value={rate}
+            onChange={(e) => setRate(Number(e.target.value))}
+          />
+          <span className="podcast-settings-value">{rate.toFixed(2)}x</span>
+        </label>
+        <label className="podcast-settings-row">
+          <span>Pause entre phrases</span>
+          <input
+            type="range"
+            min="0"
+            max="3000"
+            step="100"
+            value={pauseMs}
+            onChange={(e) => setPauseMs(Number(e.target.value))}
+          />
+          <span className="podcast-settings-value">{(pauseMs / 1000).toFixed(1)}s</span>
+        </label>
+        <p className="hint">
+          Un changement s'applique à partir de la phrase suivante (relance la lecture si besoin).
+        </p>
+      </div>
+
       <details>
         <summary>Voir le script</summary>
         <p className="podcast-script">{podcast.script}</p>

@@ -69,6 +69,10 @@ dans le module **Podcasts générés** de chaque niveau :
 Les scripts générés sur un thème sont mis en cache dans le navigateur
 (pas régénérés à chaque écoute).
 
+Le lecteur propose deux réglages (vitesse de lecture, pause entre les
+phrases), mémorisés localement sur l'appareil. Un changement s'applique à
+partir de la phrase suivante, pas en cours d'utterance.
+
 ## Fonctionnalités IA et clé API
 
 La conversation avec l'IA et la correction du journal appellent directement

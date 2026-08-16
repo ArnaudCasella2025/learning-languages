@@ -467,6 +467,36 @@ button.ghost {
   overflow-y: auto;
 }
 
+.podcast-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--bg-alt);
+}
+
+.podcast-settings-row {
+  display: grid;
+  grid-template-columns: 120px 1fr 48px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--text-h);
+}
+
+.podcast-settings-row input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.podcast-settings-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
 /* Conversation */
 .scenario-list {
   display: flex;
