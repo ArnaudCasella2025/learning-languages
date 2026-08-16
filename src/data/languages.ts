@@ -4,6 +4,11 @@ import { phrases as itPhrases } from "./it/phrases";
 import { listeningResources as itListening } from "./it/listening";
 import { scenarios as itScenarios, CORRECTION_SYSTEM_PROMPT as itCorrection } from "./it/scenarios";
 import { milestonePodcasts as itMilestonePodcasts } from "./it/podcasts";
+import {
+  conjugations as itConjugations,
+  grammarNotes as itGrammarNotes,
+  PRONOUN_LABELS as itPronounLabels,
+} from "./it/grammar";
 
 /**
  * Registre des langues disponibles dans l'appli. Pour ajouter une langue :
@@ -23,6 +28,9 @@ export const LANGUAGES: Record<string, LanguageConfig> = {
     scenarios: itScenarios,
     correctionSystemPrompt: itCorrection,
     milestonePodcasts: itMilestonePodcasts,
+    pronounLabels: itPronounLabels,
+    conjugations: itConjugations,
+    grammarNotes: itGrammarNotes,
   },
 };
 

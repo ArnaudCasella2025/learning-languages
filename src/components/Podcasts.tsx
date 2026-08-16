@@ -1,12 +1,11 @@
 import { useState } from "react";
 import type { GeneratedPodcast, Level, SRSDeckState, VocabItem } from "../types";
 import { sendMessage, ClaudeApiError } from "../lib/claude";
-import { themePodcastPrompt } from "../lib/podcastPrompt";
+import { REGISTERS, themePodcastPrompt } from "../lib/podcastPrompt";
+import { toPodcast, type MilestoneEpisode } from "../lib/podcasts";
 import { store } from "../lib/storage";
 import { usePersisted } from "../hooks/usePersisted";
 import { useTtsReader } from "../hooks/useTtsReader";
-
-type MilestoneEpisode = Omit<GeneratedPodcast, "id" | "createdAt">;
 
 interface Props {
   level: Level;
@@ -24,10 +23,6 @@ interface Props {
 
 function knownCount(vocab: VocabItem[], deck: SRSDeckState): number {
   return vocab.filter((v) => deck[v.id]?.repetitions > 0).length;
-}
-
-function toPodcast(episode: MilestoneEpisode): GeneratedPodcast {
-  return { ...episode, id: `milestone-${episode.milestone}`, createdAt: "" };
 }
 
 function Player({ podcast, locale }: { podcast: GeneratedPodcast; locale: string }) {
@@ -114,6 +109,7 @@ export function Podcasts({
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [theme, setTheme] = useState("");
+  const [registerId, setRegisterId] = useState("neutre");
   const [selected, setSelected] = useState<GeneratedPodcast | null>(null);
 
   const known = knownCount(vocab, vocabDeck);
@@ -124,7 +120,7 @@ export function Podcasts({
     setError(null);
     setLoadingId("theme");
     try {
-      const { system, user } = themePodcastPrompt(languageLabel, level, theme.trim());
+      const { system, user } = themePodcastPrompt(languageLabel, level, theme.trim(), registerId);
       const script = await sendMessage(apiKey, system, [{ role: "user", content: user }], 4096);
       const podcast: GeneratedPodcast = {
         id: crypto.randomUUID(),
@@ -202,6 +198,20 @@ export function Podcasts({
       ) : (
         <>
           {error && <p className="error-text">{error}</p>}
+          <label className="field-label" htmlFor="podcast-register">
+            Registre
+          </label>
+          <select
+            id="podcast-register"
+            value={registerId}
+            onChange={(e) => setRegisterId(e.target.value)}
+          >
+            {REGISTERS.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.label}
+              </option>
+            ))}
+          </select>
           <div className="chat-input-row">
             <input
               type="text"

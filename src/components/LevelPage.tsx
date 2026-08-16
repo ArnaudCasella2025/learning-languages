@@ -10,14 +10,16 @@ interface CardDef {
 
 const CARDS_BY_LEVEL: Record<Level, CardDef[]> = {
   1: [
-    { id: "vocab", icon: "📚", title: "1000 mots fréquents", description: "Flashcards à répétition espacée" },
+    { id: "vocab", icon: "📚", title: "Mots fréquents", description: "Flashcards à répétition espacée" },
     { id: "phrases", icon: "💬", title: "Phrases de base", description: "Expressions du quotidien" },
+    { id: "sentenceBuilder", icon: "🧩", title: "Constructeur de phrases", description: "Remets les mots dans l'ordre" },
     { id: "pronunciation", icon: "🗣️", title: "Prononciation", description: "Écoute et répète" },
     { id: "aiPodcasts", icon: "🎧", title: "Écoute quotidienne", description: "30 min/jour, par palier ou par thème" },
   ],
   2: [
     { id: "vocab", icon: "📚", title: "Vocabulaire", description: "La suite du deck de mots" },
     { id: "phrases", icon: "💬", title: "Phrases", description: "Expressions de conversation" },
+    { id: "grammar", icon: "📐", title: "Grammaire", description: "Conjugaisons et notes essentielles" },
     { id: "conversation", icon: "🤖", title: "Parler avec l'IA", description: "3 fois par semaine" },
     { id: "listening", icon: "🎧", title: "Écoute", description: "Contenus niveau intermédiaire" },
     { id: "aiPodcasts", icon: "🎙️", title: "Podcasts générés", description: "Par palier de vocabulaire ou par thème" },
@@ -25,7 +27,8 @@ const CARDS_BY_LEVEL: Record<Level, CardDef[]> = {
   ],
   3: [
     { id: "listening", icon: "🎧", title: "Contenus natifs", description: "Podcasts et médias italiens authentiques" },
-    { id: "aiPodcasts", icon: "🎙️", title: "Podcasts générés", description: "Sur un thème, au niveau natif" },
+    { id: "aiPodcasts", icon: "🎙️", title: "Podcasts générés", description: "Sur un thème et un registre, au niveau natif" },
+    { id: "shadowing", icon: "🗣️", title: "Shadowing", description: "Répète en même temps qu'un audio natif" },
     { id: "conversation", icon: "🤖", title: "Conversations longues", description: "Sujets techniques, à vitesse native" },
     { id: "journal", icon: "✍️", title: "Correction systématique", description: "Corrige tout ce que tu écris" },
   ],

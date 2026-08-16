@@ -12,20 +12,30 @@ activée — voir « Synchronisation multi-appareils » plus bas.
 
 ## La méthode
 
-**Niveau 1 — Survie**
-- 1000 mots fréquents (flashcards à répétition espacée, algorithme SM-2)
-- Phrases de base de l'usage courant (flashcards)
-- Prononciation (écoute + reconnaissance vocale)
-- Écoute quotidienne (objectif 30 min/jour, podcasts débutants + podcasts générés par l'IA)
+Les cibles de vocabulaire ci-dessous s'appuient sur des repères usuels en
+acquisition des langues (CEFR, listes de fréquence) : ~600-1000 mots pour
+un niveau A1 fonctionnel, ~2000-2500 mots cumulés pour A2-B1. Le deck
+actuel (`src/data/it/vocab.ts`) compte **546 mots** (292 niveau 1 + 254
+niveau 2) — un bon départ, pas encore la cible complète ; voir « Étendre
+le contenu ».
 
-**Niveau 2 — Conversation**
+**Niveau 1 — Survie** (cible : 600-1000 mots)
+- Mots fréquents (flashcards à répétition espacée, algorithme SM-2)
+- Phrases de base de l'usage courant (flashcards)
+- Constructeur de phrases (remettre des mots italiens mélangés dans l'ordre)
+- Prononciation (écoute + reconnaissance vocale)
+- Écoute quotidienne (objectif 30 min/jour, podcasts par palier ou par thème)
+
+**Niveau 2 — Conversation** (cible cumulée : 2000-2500 mots)
 - Suite du deck de mots et phrases
+- Grammaire (tableaux de conjugaison + notes essentielles : passé composé, articles, prépositions articulées, pronoms compléments...)
 - Parler avec l'IA (3 scénarios guidés, objectif 3x/semaine)
 - Contenus audio de niveau intermédiaire + podcasts générés par l'IA
 - Journal quotidien de 5 phrases, corrigé par l'IA
 
-**Niveau 3 — Immersion**
-- Contenus audio 100% natifs + podcasts générés par l'IA
+**Niveau 3 — Immersion** (vocabulaire par exposition, pas de liste fermée)
+- Contenus audio 100% natifs + podcasts générés par l'IA (thème + registre : actualité, culture, informel, technique, littéraire)
+- Shadowing (répéter phrase par phrase en même temps qu'un audio natif, à vitesse réglable)
 - Conversations longues et techniques avec l'IA (débat, entretien, libre)
 - Correction systématique (même module journal, sans filet)
 
@@ -45,6 +55,24 @@ Les traductions à plusieurs formulations valables (« ils / elles »,
 « temps (durée / météo) »...) acceptent n'importe laquelle des variantes
 séparées par « / », y compris entre parenthèses.
 
+## Constructeur de phrases, grammaire, shadowing
+
+- **Constructeur de phrases** (niveau 1) : une phrase française est
+  affichée, les mots italiens correspondants sont mélangés en jetons à
+  toucher dans le bon ordre. Contrairement aux flashcards (reconnaissance/
+  rappel de mots isolés), cet exercice entraîne la construction de
+  phrases complètes.
+- **Grammaire** (niveau 2) : fiches de conjugaison (présent + passé
+  composé) pour 18 verbes courants du deck, plus des notes sur les
+  points structurants (passé composé essere/avere, articles,
+  prépositions articulées, pronoms compléments, accord des adjectifs,
+  futur simple, forme interrogative). Référence à consulter, pas un
+  exercice noté.
+- **Shadowing** (niveau 3) : choisis un podcast déjà écouté ou généré
+  (palier ou thème), puis avance phrase par phrase en écoutant et en
+  répétant à voix haute en même temps ou juste après, pour travailler le
+  rythme et l'intonation plutôt que des mots isolés. Vitesse réglable.
+
 ## Podcasts
 
 En plus des podcasts externes curatés, l'appli propose des scripts lus
@@ -61,10 +89,11 @@ dans le module **Podcasts générés** de chaque niveau :
   disponible (un texte de ~2500 mots n'est pas réaliste avec seulement 50
   mots appris sans tricher sur le vocabulaire) — objectif ~2500 mots par
   épisode une fois le deck de vocabulaire bien étoffé.
-- **Sur un thème libre** : indique un sujet, un script est généré à la
-  volée via l'API Claude, au niveau de la page où tu te trouves. C'est la
-  seule partie de ce module qui nécessite une clé API — le reste
-  fonctionne sans.
+- **Sur un thème libre** : indique un sujet et choisis un registre
+  (neutre, actualité, culture, conversation informelle, technique/pro,
+  littéraire), un script est généré à la volée via l'API Claude, au
+  niveau de la page où tu te trouves. C'est la seule partie de ce module
+  qui nécessite une clé API — le reste fonctionne sans.
 
 Les scripts générés sur un thème sont mis en cache dans le navigateur
 (pas régénérés à chaque écoute).
@@ -198,13 +227,18 @@ façon. Pour ajouter un nouveau palier de podcast (par exemple 500 ou
 — il apparaîtra automatiquement dans la liste, verrouillé jusqu'à ce que
 le nombre de mots connus atteigne ce seuil.
 
+Les tableaux de conjugaison et notes de grammaire (`src/data/it/grammar.ts`)
+suivent le même principe : ajoute une entrée dans `conjugations` (verbe,
+sens, auxiliaire, 6 formes au présent et au passé composé) ou dans
+`grammarNotes` (titre, explication, exemples) pour l'étoffer.
+
 ## Ajouter une langue
 
 L'appli est structurée pour accueillir plusieurs langues :
 
 1. Crée un dossier `src/data/<code>/` (ex. `src/data/en/`) avec
-   `vocab.ts`, `phrases.ts`, `listening.ts` et `scenarios.ts`, sur le
-   modèle de `src/data/it/`.
+   `vocab.ts`, `phrases.ts`, `listening.ts`, `scenarios.ts`, `podcasts.ts`
+   et `grammar.ts`, sur le modèle de `src/data/it/`.
 2. Ajoute une entrée dans le registre `src/data/languages.ts` (code,
    libellé, drapeau, locale BCP 47 pour la voix — ex. `en-US`).
 

@@ -4,10 +4,13 @@ export type ModuleId =
   | "vocab"
   | "phrases"
   | "pronunciation"
+  | "sentenceBuilder"
   | "listening"
   | "aiPodcasts"
   | "conversation"
-  | "journal";
+  | "journal"
+  | "grammar"
+  | "shadowing";
 
 export interface VocabItem {
   id: string;
@@ -82,6 +85,24 @@ export interface ConversationLog {
   sessions: string[];
 }
 
+export interface VerbConjugation {
+  infinitive: string;
+  meaning: string;
+  group: string;
+  auxiliary: "avere" | "essere";
+  /** 6 personnes, dans l'ordre de `LanguageConfig.pronounLabels` */
+  presente: [string, string, string, string, string, string];
+  /** 6 personnes, dans l'ordre de `LanguageConfig.pronounLabels` */
+  passatoProssimo: [string, string, string, string, string, string];
+}
+
+export interface GrammarNote {
+  id: string;
+  title: string;
+  explanation: string;
+  examples: { it: string; fr: string }[];
+}
+
 export interface LanguageConfig {
   code: string;
   label: string;
@@ -94,6 +115,9 @@ export interface LanguageConfig {
   scenarios: ConversationScenario[];
   correctionSystemPrompt: string;
   milestonePodcasts: Omit<GeneratedPodcast, "id" | "createdAt">[];
+  pronounLabels: [string, string, string, string, string, string];
+  conjugations: VerbConjugation[];
+  grammarNotes: GrammarNote[];
 }
 
 export interface GeneratedPodcast {

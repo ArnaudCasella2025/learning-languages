@@ -329,6 +329,118 @@ button.ghost {
   background: var(--success);
 }
 
+/* Constructeur de phrases */
+.sentence-builder-card {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sentence-builder-prompt {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-h);
+  text-align: center;
+}
+
+.sentence-builder-answer,
+.sentence-builder-pool {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 44px;
+  align-items: center;
+}
+
+.sentence-builder-answer {
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 12px;
+  justify-content: center;
+}
+
+.sentence-builder-pool {
+  justify-content: center;
+}
+
+.chip {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.chip-answer {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
+  color: var(--accent);
+}
+
+/* Grammaire */
+.grammar-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 8px;
+}
+
+.grammar-table td {
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+}
+
+.grammar-table td:first-child {
+  color: var(--text);
+  width: 90px;
+}
+
+.grammar-table td:last-child {
+  color: var(--text-h);
+  font-weight: 600;
+}
+
+.grammar-notes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.grammar-note {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--bg-alt);
+}
+
+.grammar-note summary {
+  font-weight: 600;
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.grammar-note p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.grammar-note ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.grammar-note li {
+  margin-bottom: 4px;
+}
+
 /* Prononciation */
 .pronunciation-card {
   background: var(--bg-alt);
@@ -619,7 +731,8 @@ button.ghost {
 }
 
 input[type="password"],
-input[type="text"] {
+input[type="text"],
+.module-screen select {
   border-radius: 10px;
   border: 1px solid var(--border);
   padding: 10px 12px;

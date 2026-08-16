@@ -9,8 +9,12 @@ import { Dashboard } from "./components/Dashboard";
 import { LevelPage } from "./components/LevelPage";
 import { Flashcards } from "./components/Flashcards";
 import { Pronunciation } from "./components/Pronunciation";
+import { SentenceBuilder } from "./components/SentenceBuilder";
+import { Grammar } from "./components/Grammar";
 import { Listening } from "./components/Listening";
 import { Podcasts } from "./components/Podcasts";
+import { Shadowing } from "./components/Shadowing";
+import { toPodcast } from "./lib/podcasts";
 import { Conversation } from "./components/Conversation";
 import { Journal } from "./components/Journal";
 import { Settings } from "./components/Settings";
@@ -102,6 +106,24 @@ export default function App() {
             onBack={back}
           />
         );
+      case "sentenceBuilder":
+        return (
+          <SentenceBuilder
+            items={language.phrases
+              .filter((p) => p.tier <= tierCap)
+              .map((p) => ({ id: p.id, it: p.it, fr: p.fr }))}
+            onBack={back}
+          />
+        );
+      case "grammar":
+        return (
+          <Grammar
+            conjugations={language.conjugations}
+            notes={language.grammarNotes}
+            pronounLabels={language.pronounLabels}
+            onBack={back}
+          />
+        );
       case "listening":
         return (
           <Listening
@@ -126,6 +148,14 @@ export default function App() {
             onPodcastsChange={setPodcasts}
             onBack={back}
             onOpenSettings={() => goTab("settings")}
+          />
+        );
+      case "shadowing":
+        return (
+          <Shadowing
+            sources={[...language.milestonePodcasts.map(toPodcast), ...podcasts]}
+            locale={language.ttsLocale}
+            onBack={back}
           />
         );
       case "conversation":
