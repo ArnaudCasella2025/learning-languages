@@ -13,8 +13,7 @@ const CARDS_BY_LEVEL: Record<Level, CardDef[]> = {
     { id: "vocab", icon: "📚", title: "1000 mots fréquents", description: "Flashcards à répétition espacée" },
     { id: "phrases", icon: "💬", title: "Phrases de base", description: "Expressions du quotidien" },
     { id: "pronunciation", icon: "🗣️", title: "Prononciation", description: "Écoute et répète" },
-    { id: "listening", icon: "🎧", title: "Écoute quotidienne", description: "30 min/jour, podcasts débutants" },
-    { id: "aiPodcasts", icon: "🎙️", title: "Podcasts générés", description: "Par palier de vocabulaire ou par thème" },
+    { id: "aiPodcasts", icon: "🎧", title: "Écoute quotidienne", description: "30 min/jour, par palier ou par thème" },
   ],
   2: [
     { id: "vocab", icon: "📚", title: "Vocabulaire", description: "La suite du deck de mots" },
