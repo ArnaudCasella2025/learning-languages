@@ -22,13 +22,18 @@ interface Options {
 
 const CORRECT_THRESHOLD = 80;
 // Nombre de bonnes réponses d'affilée nécessaires, dans la même session,
-// avant qu'une carte ne quitte la file de révision. Une seule bonne
-// réponse ne suffit pas à confirmer que la connaissance est acquise (ça
-// peut être de la chance ou de la mémoire à très court terme) : la carte
-// est donc remise plus loin dans la session pour vérifier la rétention,
-// et ce n'est qu'une fois la série confirmée que la note SM-2 réelle est
-// appliquée (et donc que la carte compte comme "connue").
-const CONFIRM_STREAK = 2;
+// avant qu'une carte ne quitte la file de révision. Un seul essai réussi
+// ne suffit pas à confirmer que la connaissance est acquise (chance, ou
+// mémoire à très court terme) : la carte revient donc plusieurs fois, à
+// des écarts croissants (voir UNCONFIRMED_REQUEUE_OFFSETS), avant que la
+// note SM-2 réelle ne soit appliquée et qu'elle ne quitte la session.
+// Pour du contenu sans aucun repère familier (écriture, vocabulaire
+// inconnus, pas de mots apparentés au français), l'oubli est très rapide
+// tant que rien n'a été revu dans les heures qui suivent : un premier
+// rappel réussi ne veut pas encore dire grand-chose, plusieurs rappels
+// espacés dans la même session ancrent bien mieux avant de compter sur le
+// rythme (jour+, semaine+) du SM-2 pour la suite.
+const CONFIRM_STREAK = 3;
 
 function idsKey(items: FlashcardItem[]): string {
   return items.map((i) => i.id).join("|");
@@ -44,8 +49,16 @@ function wrongRequeueOffset(restLength: number): number {
   return Math.min(3, restLength);
 }
 
-function unconfirmedRequeueOffset(restLength: number): number {
-  return Math.min(6, restLength);
+// Un écart par palier de confirmation atteint (voir CONFIRM_STREAK) : le
+// premier rappel réussi revient assez vite, le second est repoussé plus
+// loin dans la session pour espacer davantage le rappel suivant.
+const UNCONFIRMED_REQUEUE_OFFSETS = [6, 18];
+
+function unconfirmedRequeueOffset(streakAfterThisAnswer: number, restLength: number): number {
+  const offset =
+    UNCONFIRMED_REQUEUE_OFFSETS[streakAfterThisAnswer - 1] ??
+    UNCONFIRMED_REQUEUE_OFFSETS[UNCONFIRMED_REQUEUE_OFFSETS.length - 1];
+  return Math.min(offset, restLength);
 }
 
 function dueIds(ids: string[], items: FlashcardItem[], deck: SRSDeckState): string[] {
@@ -175,7 +188,7 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
         setStreaks((s) => ({ ...s, [id]: streak }));
         setSessionQueue((q) => {
           const rest = q.slice(1);
-          const requeueAt = unconfirmedRequeueOffset(rest.length);
+          const requeueAt = unconfirmedRequeueOffset(streak, rest.length);
           return [...rest.slice(0, requeueAt), id, ...rest.slice(requeueAt)];
         });
         return;
