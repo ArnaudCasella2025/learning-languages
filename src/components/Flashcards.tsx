@@ -56,6 +56,8 @@ export function Flashcards({
     dueCount,
     totalCount,
     knownCount,
+    currentStreak,
+    confirmStreak,
   } = useFlashcards({ items: visibleItems, deck, onDeckChange });
 
   const promptFlag = direction === "it-fr" ? languageFlag : FRENCH_FLAG;
@@ -101,6 +103,12 @@ export function Flashcards({
             {prompt}
           </div>
           {promptTranslit && <div className="flashcard-translit">{promptTranslit}</div>}
+          {currentStreak > 0 && (
+            <p className="hint">
+              🔁 Déjà {currentStreak}/{confirmStreak} bonnes réponses dans cette session — encore
+              une pour valider cette carte.
+            </p>
+          )}
 
           <form
             className="flashcard-answer-form"

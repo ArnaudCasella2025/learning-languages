@@ -21,9 +21,31 @@ interface Options {
 }
 
 const CORRECT_THRESHOLD = 80;
+// Nombre de bonnes réponses d'affilée nécessaires, dans la même session,
+// avant qu'une carte ne quitte la file de révision. Une seule bonne
+// réponse ne suffit pas à confirmer que la connaissance est acquise (ça
+// peut être de la chance ou de la mémoire à très court terme) : la carte
+// est donc remise plus loin dans la session pour vérifier la rétention,
+// et ce n'est qu'une fois la série confirmée que la note SM-2 réelle est
+// appliquée (et donc que la carte compte comme "connue").
+const CONFIRM_STREAK = 2;
 
 function idsKey(items: FlashcardItem[]): string {
   return items.map((i) => i.id).join("|");
+}
+
+// Position à laquelle une carte remise en jeu est réinsérée dans la file
+// de la session. Volontairement petite et fixe pour que la carte revienne
+// vite (l'objectif est de vérifier la rétention à chaud) ; un décalage
+// proportionnel à la taille de la file règlerait le cas extrême où une
+// carte n'est jamais réussie, mais retarderait le retour de toutes les
+// autres cartes dans le cas courant, ce qui va à l'encontre du but.
+function wrongRequeueOffset(restLength: number): number {
+  return Math.min(3, restLength);
+}
+
+function unconfirmedRequeueOffset(restLength: number): number {
+  return Math.min(6, restLength);
 }
 
 function dueIds(ids: string[], items: FlashcardItem[], deck: SRSDeckState): string[] {
@@ -60,6 +82,11 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
     dueIds(order, items, deck),
   );
 
+  // Compteur de bonnes réponses consécutives par carte, dans la session en
+  // cours uniquement (pas persisté : recommence à 0 à chaque nouvelle
+  // session, voir CONFIRM_STREAK ci-dessus).
+  const [streaks, setStreaks] = useState<Record<string, number>>({});
+
   useEffect(() => {
     const key = idsKey(items);
     if (key !== orderKeyRef.current) {
@@ -67,6 +94,7 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
       const newOrder = shuffle(items.map((i) => i.id));
       setOrder(newOrder);
       setSessionQueue(dueIds(newOrder, items, deck));
+      setStreaks({});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [items]);
@@ -120,22 +148,50 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
   const grade = useCallback(
     (value: number) => {
       if (!currentItem || !currentCard) return;
-      const updated = gradeCard(currentCard, value);
-      onDeckChange({ ...deck, [updated.id]: updated });
+      const id = currentItem.id;
       setUserAnswer("");
       setChecked(false);
-      setSessionQueue((q) => {
-        const rest = q.slice(1);
-        if (value >= 3) return rest;
-        // Réponse fausse ("Encore") : remise quelques cartes plus loin
-        // dans la file de la session (pas juste après) pour laisser
-        // d'autres cartes s'intercaler avant de la revoir.
-        const requeueAt = Math.min(3, rest.length);
-        return [...rest.slice(0, requeueAt), updated.id, ...rest.slice(requeueAt)];
-      });
+
+      if (value < 3) {
+        // Réponse fausse ("Encore") : la série de bonnes réponses repart de
+        // zéro, note SM-2 appliquée tout de suite (comme avant), et la
+        // carte revient assez vite dans la session pour retenter.
+        const updated = gradeCard(currentCard, value);
+        onDeckChange({ ...deck, [id]: updated });
+        setStreaks((s) => ({ ...s, [id]: 0 }));
+        setSessionQueue((q) => {
+          const rest = q.slice(1);
+          const requeueAt = wrongRequeueOffset(rest.length);
+          return [...rest.slice(0, requeueAt), id, ...rest.slice(requeueAt)];
+        });
+        return;
+      }
+
+      const streak = (streaks[id] ?? 0) + 1;
+      if (streak < CONFIRM_STREAK) {
+        // Bonne réponse, mais pas encore confirmée : la carte reste dans
+        // la session (plus loin que pour une erreur, pour vraiment tester
+        // la rétention) et sa note SM-2 n'est pas encore appliquée.
+        setStreaks((s) => ({ ...s, [id]: streak }));
+        setSessionQueue((q) => {
+          const rest = q.slice(1);
+          const requeueAt = unconfirmedRequeueOffset(rest.length);
+          return [...rest.slice(0, requeueAt), id, ...rest.slice(requeueAt)];
+        });
+        return;
+      }
+
+      // Série confirmée : note SM-2 réelle appliquée, la carte quitte la
+      // session (elle reviendra à son prochain palier d'échéance).
+      const updated = gradeCard(currentCard, value);
+      onDeckChange({ ...deck, [id]: updated });
+      setStreaks((s) => ({ ...s, [id]: 0 }));
+      setSessionQueue((q) => q.slice(1));
     },
-    [currentItem, currentCard, deck, onDeckChange],
+    [currentItem, currentCard, deck, onDeckChange, streaks],
   );
+
+  const currentStreak = currentItem ? (streaks[currentItem.id] ?? 0) : 0;
 
   return {
     currentItem,
@@ -154,5 +210,7 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
     dueCount: sessionQueue.length,
     totalCount: items.length,
     knownCount,
+    currentStreak,
+    confirmStreak: CONFIRM_STREAK,
   };
 }
