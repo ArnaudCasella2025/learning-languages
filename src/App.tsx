@@ -80,6 +80,7 @@ export default function App() {
             title="Vocabulaire"
             languageLabel={language.label}
             languageFlag={language.flag}
+            locale={language.ttsLocale}
             rtl={language.rtl}
             items={language.vocab
               .filter((v) => v.tier <= tierCap)
@@ -96,6 +97,7 @@ export default function App() {
             title="Phrases"
             languageLabel={language.label}
             languageFlag={language.flag}
+            locale={language.ttsLocale}
             rtl={language.rtl}
             items={language.phrases
               .filter((p) => p.tier <= tierCap)

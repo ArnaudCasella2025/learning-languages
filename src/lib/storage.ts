@@ -21,6 +21,7 @@ const KEYS = {
   syncCode: "ll_sync_code_v1",
   podcastRate: "ll_podcast_rate_v1",
   podcastPauseMs: "ll_podcast_pause_ms_v1",
+  flashcardAudio: "ll_flashcard_audio_v1",
 } as const;
 
 function read<T>(key: string, fallback: T): T {
@@ -78,6 +79,10 @@ export const store = {
   setPodcastRate: (v: number) => write(KEYS.podcastRate, v),
   getPodcastPauseMs: () => read<number>(KEYS.podcastPauseMs, 300),
   setPodcastPauseMs: (v: number) => write(KEYS.podcastPauseMs, v),
+
+  /** Lecture audio automatique des mots/phrases dans les flashcards. */
+  getFlashcardAudio: () => read<boolean>(KEYS.flashcardAudio, true),
+  setFlashcardAudio: (v: boolean) => write(KEYS.flashcardAudio, v),
 };
 
 export function todayKey(date: Date = new Date()): string {

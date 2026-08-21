@@ -1,14 +1,20 @@
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SRSDeckState } from "../types";
 import { useFlashcards, type FlashcardItem } from "../hooks/useFlashcards";
 import { remainingInCurrentBatch, unlockedCount } from "../lib/batches";
+import { findVoice } from "../lib/voices";
+import { store } from "../lib/storage";
+import { usePersisted } from "../hooks/usePersisted";
 
 const FRENCH_FLAG = "🇫🇷";
+const ttsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
 
 interface Props {
   title: string;
   languageLabel: string;
   languageFlag: string;
+  /** Locale BCP 47 pour la lecture audio automatique, ex. "it-IT". */
+  locale: string;
   rtl?: boolean;
   items: FlashcardItem[];
   /** Taille des paliers de déblocage progressif (voir src/lib/batches.ts). */
@@ -22,6 +28,7 @@ export function Flashcards({
   title,
   languageLabel,
   languageFlag,
+  locale,
   rtl,
   items,
   batchSize,
@@ -65,12 +72,68 @@ export function Flashcards({
   const promptDir = direction === "it-fr" && rtl ? "rtl" : "ltr";
   const answerDir = direction === "fr-it" && rtl ? "rtl" : "ltr";
 
+  // Lecture audio du mot/de la phrase dans la langue apprise : dès que le
+  // texte cible est visible à l'écran (directement dans le sens langue ->
+  // français, ou une fois la réponse révélée dans le sens inverse), pas
+  // avant (ça donnerait la réponse). Peut être coupée (préférence locale,
+  // persistée) et relancée à la demande via le bouton 🔊.
+  const [audioEnabled, setAudioEnabled] = usePersisted(
+    store.getFlashcardAudio,
+    store.setFlashcardAudio,
+  );
+  const [voice, setVoice] = useState<SpeechSynthesisVoice | undefined>();
+  useEffect(() => {
+    let cancelled = false;
+    findVoice(locale).then((v) => {
+      if (!cancelled) setVoice(v);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [locale]);
+
+  const speak = useCallback(
+    (text: string) => {
+      if (!ttsSupported) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = locale;
+      if (voice) utterance.voice = voice;
+      utterance.rate = 0.9;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    },
+    [locale, voice],
+  );
+
+  const targetTextVisible = direction === "it-fr" ? true : checked;
+  const lastAutoSpokenRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!audioEnabled || !currentItem || !targetTextVisible) return;
+    const key = `${currentItem.id}:${direction}:${checked}`;
+    if (lastAutoSpokenRef.current === key) return;
+    lastAutoSpokenRef.current = key;
+    speak(currentItem.it);
+  }, [audioEnabled, currentItem, direction, checked, targetTextVisible, speak]);
+
   return (
     <div className="module-screen">
       <button className="back-link" onClick={onBack}>
         ← Retour
       </button>
-      <h2>{title}</h2>
+      <div className="module-header-row">
+        <h2>{title}</h2>
+        {ttsSupported && (
+          <button
+            type="button"
+            className="ghost audio-toggle"
+            onClick={() => setAudioEnabled(!audioEnabled)}
+            aria-label={audioEnabled ? "Couper la lecture audio" : "Activer la lecture audio"}
+            title={audioEnabled ? "Couper la lecture audio" : "Activer la lecture audio"}
+          >
+            {audioEnabled ? "🔊" : "🔇"}
+          </button>
+        )}
+      </div>
       <p className="module-sub">
         {knownCount}/{totalCount} cartes débloquées maîtrisées · {dueCount} à réviser maintenant
         {unlocked < items.length && ` · ${unlocked}/${items.length} cartes débloquées au total`}
@@ -101,6 +164,17 @@ export function Flashcards({
               {promptFlag}
             </span>
             {prompt}
+            {ttsSupported && direction === "it-fr" && (
+              <button
+                type="button"
+                className="ghost audio-replay"
+                onClick={() => speak(currentItem.it)}
+                aria-label="Réécouter"
+                title="Réécouter"
+              >
+                🔊
+              </button>
+            )}
           </div>
           {promptTranslit && <div className="flashcard-translit">{promptTranslit}</div>}
           {currentStreak > 0 && (
@@ -152,6 +226,17 @@ export function Flashcards({
                 Réponse : <span dir={answerDir}>{expectedAnswer}</span>
                 {expectedTranslit && (
                   <span className="flashcard-translit"> ({expectedTranslit})</span>
+                )}
+                {ttsSupported && direction === "fr-it" && (
+                  <button
+                    type="button"
+                    className="ghost audio-replay"
+                    onClick={() => speak(currentItem.it)}
+                    aria-label="Réécouter"
+                    title="Réécouter"
+                  >
+                    🔊
+                  </button>
                 )}
               </p>
             </div>
