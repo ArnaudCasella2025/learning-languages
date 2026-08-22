@@ -225,15 +225,15 @@ export function Flashcards({
               <p className={result.correct ? "score-great" : "score-low"}>
                 {result.correct ? "✅ Correct !" : "❌ Pas tout à fait."}
                 {" "}
-                <span className="flashcard-score">
+                <span
+                  className={
+                    result.correct
+                      ? "flashcard-score flashcard-score-pop score-delta-up"
+                      : "flashcard-score flashcard-score-pop score-delta-down"
+                  }
+                >
                   ⭐ {currentScore} →{" "}
-                  <span
-                    className={
-                      result.correct
-                        ? "flashcard-score-delta score-delta-up"
-                        : "flashcard-score-delta score-delta-down"
-                    }
-                  >
+                  <span className="flashcard-score-delta">
                     {Math.max(0, currentScore + (result.correct ? 1 : -1))}
                   </span>
                 </span>
