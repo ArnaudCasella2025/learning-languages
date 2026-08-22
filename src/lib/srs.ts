@@ -12,7 +12,19 @@ export function createCard(id: string): SRSCard {
     interval: 0,
     repetitions: 0,
     dueDate: new Date().toISOString(),
+    score: 0,
   };
+}
+
+/**
+ * Compteur de gamification par carte : +1/-1, plancher 0. Volontairement
+ * séparé de gradeCard (qui touche la planification SM-2) : une bonne
+ * réponse doit incrémenter ce compteur même quand elle n'est pas encore
+ * "confirmée" par la série de rappels de useFlashcards, et donc que la
+ * planification SM-2 elle-même n'est pas encore mise à jour.
+ */
+export function bumpScore(card: SRSCard, delta: 1 | -1): SRSCard {
+  return { ...card, score: Math.max(0, (card.score ?? 0) + delta) };
 }
 
 export function gradeCard(card: SRSCard, grade: number): SRSCard {
@@ -20,6 +32,7 @@ export function gradeCard(card: SRSCard, grade: number): SRSCard {
     1.3,
     card.easiness + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)),
   );
+  const { score } = bumpScore(card, grade >= 3 ? 1 : -1);
 
   if (grade < 3) {
     // "Encore" : la carte ne doit pas réapparaître immédiatement (elle
@@ -32,6 +45,7 @@ export function gradeCard(card: SRSCard, grade: number): SRSCard {
       interval: 0,
       lastGrade: grade,
       dueDate: addMinutes(new Date(), 10).toISOString(),
+      score,
     };
   }
 
@@ -48,6 +62,7 @@ export function gradeCard(card: SRSCard, grade: number): SRSCard {
     interval,
     lastGrade: grade,
     dueDate: addDays(new Date(), interval).toISOString(),
+    score,
   };
 }
 

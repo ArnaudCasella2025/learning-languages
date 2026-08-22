@@ -45,6 +45,13 @@ export interface SRSCard {
   /** date ISO à laquelle la carte redevient due */
   dueDate: string;
   lastGrade?: number;
+  /**
+   * Compteur de gamification par carte : +1 à chaque bonne réponse, -1 à
+   * chaque mauvaise (plancher 0). Purement indicatif, n'influence pas la
+   * planification SM-2. Optionnel pour rester compatible avec les decks
+   * déjà persistés avant l'ajout de ce champ (absent = 0).
+   */
+  score?: number;
 }
 
 export type SRSDeckState = Record<string, SRSCard>;

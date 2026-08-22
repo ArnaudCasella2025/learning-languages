@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createCard, gradeCard, isDue } from "../lib/srs";
+import { bumpScore, createCard, gradeCard, isDue } from "../lib/srs";
 import { shuffle } from "../lib/shuffle";
 import { bestAnswerScore } from "../lib/similarity";
 import type { SRSDeckState } from "../types";
@@ -184,7 +184,10 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
       if (streak < CONFIRM_STREAK) {
         // Bonne réponse, mais pas encore confirmée : la carte reste dans
         // la session (plus loin que pour une erreur, pour vraiment tester
-        // la rétention) et sa note SM-2 n'est pas encore appliquée.
+        // la rétention) et sa note SM-2 n'est pas encore appliquée. Le
+        // compteur de gamification, lui, avance quand même à chaque bonne
+        // réponse (voir bumpScore).
+        onDeckChange({ ...deck, [id]: bumpScore(currentCard, 1) });
         setStreaks((s) => ({ ...s, [id]: streak }));
         setSessionQueue((q) => {
           const rest = q.slice(1);
@@ -205,6 +208,7 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
   );
 
   const currentStreak = currentItem ? (streaks[currentItem.id] ?? 0) : 0;
+  const currentScore = currentCard?.score ?? 0;
 
   return {
     currentItem,
@@ -225,5 +229,6 @@ export function useFlashcards({ items, deck, onDeckChange }: Options) {
     knownCount,
     currentStreak,
     confirmStreak: CONFIRM_STREAK,
+    currentScore,
   };
 }

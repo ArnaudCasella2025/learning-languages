@@ -65,6 +65,7 @@ export function Flashcards({
     knownCount,
     currentStreak,
     confirmStreak,
+    currentScore,
   } = useFlashcards({ items: visibleItems, deck, onDeckChange });
 
   const promptFlag = direction === "it-fr" ? languageFlag : FRENCH_FLAG;
@@ -155,9 +156,14 @@ export function Flashcards({
       {currentItem && (
         <div className="flashcard">
           <div className="flashcard-direction">
-            {direction === "it-fr"
-              ? `${languageLabel.toLowerCase()} → français`
-              : `français → ${languageLabel.toLowerCase()}`}
+            <span>
+              {direction === "it-fr"
+                ? `${languageLabel.toLowerCase()} → français`
+                : `français → ${languageLabel.toLowerCase()}`}
+            </span>
+            <span className="flashcard-score" title="Bonnes réponses nettes pour cette carte">
+              ⭐ {currentScore}
+            </span>
           </div>
           <div className="flashcard-front" dir={promptDir}>
             <span className="flashcard-flag" aria-hidden="true">
@@ -218,6 +224,10 @@ export function Flashcards({
             <div className="flashcard-result">
               <p className={result.correct ? "score-great" : "score-low"}>
                 {result.correct ? "✅ Correct !" : "❌ Pas tout à fait."}
+                {" "}
+                <span className="flashcard-score">
+                  ⭐ {currentScore} → {Math.max(0, currentScore + (result.correct ? 1 : -1))}
+                </span>
               </p>
               <p className="flashcard-back">
                 <span className="flashcard-flag" aria-hidden="true">
