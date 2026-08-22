@@ -40,20 +40,31 @@ export function remainingInCurrentBatch(
 }
 
 export interface ScoreBreakdown {
-  /** Nombre de cartes par score exact (0, 1, 2). */
-  byScore: [number, number, number];
+  /**
+   * Cartes déjà "sorties" (au moins une réponse donnée) mais pas encore
+   * maîtrisées (voir isKnown ci-dessus) : le pool de cartes activement en
+   * cours d'apprentissage. Une carte jamais vue n'y figure pas (contraire
+   * à un simple compte "score = 0", qui mélangerait les deux).
+   */
+  inProgress: number;
+  /** Nombre de cartes par score exact (1, 2), parmi celles du pool ci-dessus. */
+  byScore: [number, number];
   /** Cartes à 3 étoiles ou plus. */
   threeOrMore: number;
 }
 
 /** Répartition des cartes débloquées par score (voir SRSCard.score). */
 export function scoreBreakdown(items: { id: string }[], deck: SRSDeckState): ScoreBreakdown {
-  const byScore: [number, number, number] = [0, 0, 0];
+  let inProgress = 0;
+  const byScore: [number, number] = [0, 0];
   let threeOrMore = 0;
   for (const item of items) {
-    const score = deck[item.id]?.score ?? 0;
-    if (score <= 2) byScore[score]++;
-    else threeOrMore++;
+    const card = deck[item.id];
+    if (!card) continue; // jamais vue : hors du pool
+    if (!isKnown(item.id, deck)) inProgress++;
+    const score = card.score ?? 0;
+    if (score === 1 || score === 2) byScore[score - 1]++;
+    else if (score >= 3) threeOrMore++;
   }
-  return { byScore, threeOrMore };
+  return { inProgress, byScore, threeOrMore };
 }

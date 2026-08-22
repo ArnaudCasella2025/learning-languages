@@ -141,8 +141,8 @@ export function Flashcards({
         {unlocked < items.length && ` · ${unlocked}/${items.length} cartes débloquées au total`}
       </p>
       <p className="module-sub score-distribution">
-        Répartition : ⭐0 × {scores.byScore[0]} · ⭐1 × {scores.byScore[1]} · ⭐2 × {scores.byScore[2]}{" "}
-        · ⭐3+ × {scores.threeOrMore}
+        🗃️ × {scores.inProgress} en cours · ⭐1 × {scores.byScore[0]} · ⭐2 × {scores.byScore[1]} ·
+        ⭐3+ × {scores.threeOrMore}
       </p>
       {unlocked < items.length && (
         <p className="hint">
