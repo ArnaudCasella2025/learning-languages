@@ -274,6 +274,41 @@ button.recording {
   opacity: 1;
 }
 
+@keyframes score-pop {
+  0% {
+    transform: scale(0.4) translateY(4px);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.35) translateY(-2px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.flashcard-score-delta {
+  display: inline-block;
+  font-weight: 700;
+  animation: score-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.score-delta-up {
+  color: var(--success);
+}
+
+.score-delta-down {
+  color: var(--danger);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flashcard-score-delta {
+    animation: none;
+  }
+}
+
 .flashcard-front {
   font-size: 26px;
   font-weight: 600;

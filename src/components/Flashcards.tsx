@@ -226,7 +226,16 @@ export function Flashcards({
                 {result.correct ? "✅ Correct !" : "❌ Pas tout à fait."}
                 {" "}
                 <span className="flashcard-score">
-                  ⭐ {currentScore} → {Math.max(0, currentScore + (result.correct ? 1 : -1))}
+                  ⭐ {currentScore} →{" "}
+                  <span
+                    className={
+                      result.correct
+                        ? "flashcard-score-delta score-delta-up"
+                        : "flashcard-score-delta score-delta-down"
+                    }
+                  >
+                    {Math.max(0, currentScore + (result.correct ? 1 : -1))}
+                  </span>
                 </span>
               </p>
               <p className="flashcard-back">
