@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { SRSDeckState } from "../types";
 import { useFlashcards, type FlashcardItem } from "../hooks/useFlashcards";
-import { remainingInCurrentBatch, unlockedCount } from "../lib/batches";
+import { remainingInCurrentBatch, scoreBreakdown, unlockedCount } from "../lib/batches";
 import { findVoice } from "../lib/voices";
 import { store } from "../lib/storage";
 import { usePersisted } from "../hooks/usePersisted";
@@ -45,6 +45,7 @@ export function Flashcards({
     () => remainingInCurrentBatch(items, deck, batchSize, unlocked),
     [items, deck, batchSize, unlocked],
   );
+  const scores = useMemo(() => scoreBreakdown(visibleItems, deck), [visibleItems, deck]);
 
   const {
     currentItem,
@@ -138,6 +139,10 @@ export function Flashcards({
       <p className="module-sub">
         {knownCount}/{totalCount} cartes débloquées maîtrisées · {dueCount} à réviser maintenant
         {unlocked < items.length && ` · ${unlocked}/${items.length} cartes débloquées au total`}
+      </p>
+      <p className="module-sub score-distribution">
+        Répartition : ⭐0 × {scores.byScore[0]} · ⭐1 × {scores.byScore[1]} · ⭐2 × {scores.byScore[2]}{" "}
+        · ⭐3+ × {scores.threeOrMore}
       </p>
       {unlocked < items.length && (
         <p className="hint">

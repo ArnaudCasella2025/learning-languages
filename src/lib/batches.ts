@@ -38,3 +38,22 @@ export function remainingInCurrentBatch(
   const batch = items.slice(batchStart, unlocked);
   return batch.filter((item) => !isKnown(item.id, deck)).length;
 }
+
+export interface ScoreBreakdown {
+  /** Nombre de cartes par score exact (0, 1, 2). */
+  byScore: [number, number, number];
+  /** Cartes à 3 étoiles ou plus. */
+  threeOrMore: number;
+}
+
+/** Répartition des cartes débloquées par score (voir SRSCard.score). */
+export function scoreBreakdown(items: { id: string }[], deck: SRSDeckState): ScoreBreakdown {
+  const byScore: [number, number, number] = [0, 0, 0];
+  let threeOrMore = 0;
+  for (const item of items) {
+    const score = deck[item.id]?.score ?? 0;
+    if (score <= 2) byScore[score]++;
+    else threeOrMore++;
+  }
+  return { byScore, threeOrMore };
+}
