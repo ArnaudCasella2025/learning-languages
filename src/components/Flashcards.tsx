@@ -161,8 +161,19 @@ export function Flashcards({
                 ? `${languageLabel.toLowerCase()} → français`
                 : `français → ${languageLabel.toLowerCase()}`}
             </span>
-            <span className="flashcard-score" title="Bonnes réponses nettes pour cette carte">
-              ⭐ {currentScore}
+            <span
+              key={`${currentItem.id}-${checked}`}
+              className={
+                checked && result
+                  ? `flashcard-score flashcard-score-pop ${result.correct ? "score-delta-up" : "score-delta-down"}`
+                  : "flashcard-score"
+              }
+              title="Bonnes réponses nettes pour cette carte"
+            >
+              ⭐{" "}
+              {checked && result
+                ? Math.max(0, currentScore + (result.correct ? 1 : -1))
+                : currentScore}
             </span>
           </div>
           <div className="flashcard-front" dir={promptDir}>
@@ -224,19 +235,6 @@ export function Flashcards({
             <div className="flashcard-result">
               <p className={result.correct ? "score-great" : "score-low"}>
                 {result.correct ? "✅ Correct !" : "❌ Pas tout à fait."}
-                {" "}
-                <span
-                  className={
-                    result.correct
-                      ? "flashcard-score flashcard-score-pop score-delta-up"
-                      : "flashcard-score flashcard-score-pop score-delta-down"
-                  }
-                >
-                  ⭐ {currentScore} →{" "}
-                  <span className="flashcard-score-delta">
-                    {Math.max(0, currentScore + (result.correct ? 1 : -1))}
-                  </span>
-                </span>
               </p>
               <p className="flashcard-back">
                 <span className="flashcard-flag" aria-hidden="true">
